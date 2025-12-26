@@ -4,5 +4,5 @@ import App from "./App";
 
 test("renders vite and react logos", () => {
 	render(<App />);
-	expect(screen.getByText(/Vite \+ React/i)).toBeDefined();
+	expect(screen.getByText(/Supabase Todos/i)).toBeDefined();
 });
