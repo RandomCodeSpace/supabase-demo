@@ -9,6 +9,9 @@ export function Auth() {
 			setLoading(true);
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider,
+				options: {
+					redirectTo: window.location.origin,
+				},
 			});
 			if (error) throw error;
 		} catch (error) {
