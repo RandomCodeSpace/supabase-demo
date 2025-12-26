@@ -15,12 +15,51 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"a11y": {
+				"noAutofocus": {
+					"level": "error",
+					"fix": "safe"
+				},
+				"noSvgWithoutTitle": "off",
+				"noStaticElementInteractions": "off",
+				"useButtonType": "off",
+				"useKeyWithClickEvents": "off",
+				"noLabelWithoutControl": "off"
+			},
+			"complexity": {
+				"noStaticOnlyClass": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": {
+					"level": "error",
+					"fix": "safe"
+				},
+				"noUnusedImports": {
+					"level": "error",
+					"fix": "safe"
+				},
+				"noUnusedVariables": {
+					"level": "error",
+					"fix": "safe"
+				}
+			},
+			"style": {
+				"useTemplate": {
+					"level": "error",
+					"fix": "safe"
+				}
+			}
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	},
 	"assist": {
