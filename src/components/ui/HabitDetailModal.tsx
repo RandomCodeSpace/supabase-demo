@@ -6,6 +6,7 @@ import {
 	type HabitNote,
 	HabitService,
 } from "../../services/habitService";
+import { VoiceInput } from "./VoiceInput";
 
 interface HabitDetailModalProps {
 	habit: Habit;
@@ -39,6 +40,8 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 	useEffect(() => {
 		loadNotes();
 	}, [loadNotes]);
+
+	// Effect to update note with transcript while listening - REMOVED (handled by VoiceInput)
 
 	const handleSend = async () => {
 		if (!newNote.trim()) return;
@@ -131,29 +134,28 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 
 				{/* Input Area */}
 				<div className="p-4 bg-zen-surface border-t border-white/10 z-20">
-					<div className="relative">
-						<textarea
-							value={newNote}
-							onChange={(e) => setNewNote(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" && !e.shiftKey) {
-									e.preventDefault();
-									handleSend();
-								}
-							}}
-							className="w-full bg-white/5 border border-white/10 rounded-2xl pl-4 pr-12 py-3 text-white focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm"
-							placeholder="Add a thought..."
-							rows={1}
-							style={{ minHeight: "3rem", maxHeight: "8rem" }}
-						/>
-						<button
-							onClick={handleSend}
-							disabled={!newNote.trim() || loading}
-							className="absolute right-2 bottom-2 p-2 bg-zen-primary text-black rounded-xl hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all"
-						>
-							<Send size={16} />
-						</button>
-					</div>
+					<VoiceInput
+						value={newNote}
+						onValueChange={setNewNote}
+						placeholder="Add a thought..."
+						rows={1}
+						style={{ minHeight: "3rem", maxHeight: "8rem" }}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" && !e.shiftKey) {
+								e.preventDefault();
+								handleSend();
+							}
+						}}
+						rightElement={
+							<button
+								onClick={handleSend}
+								disabled={!newNote.trim() || loading}
+								className="p-2 bg-zen-primary text-black rounded-xl hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all"
+							>
+								<Send size={16} />
+							</button>
+						}
+					/>
 				</div>
 			</motion.div>
 		</div>

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { type Habit, HabitService } from "../../services/habitService";
+import { VoiceInput } from "./VoiceInput";
 
 interface AddHabitModalProps {
 	onClose: () => void;
@@ -55,27 +56,32 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div>
-						<label className="block text-sm text-zen-text-muted mb-2">
+						<label className="block text-sm font-medium text-zen-text-muted mb-1">
 							Title
 						</label>
-						<input
-							type="text"
+						<VoiceInput
 							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-zen-primary transition-colors"
+							onValueChange={setTitle}
 							placeholder="e.g. Morning Meditation"
+							rows={1}
+							style={{ minHeight: "3rem" }}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									e.preventDefault();
+									// Optional: focus description or submit
+								}
+							}}
 						/>
 					</div>
 					<div>
-						<label className="block text-sm text-zen-text-muted mb-2">
-							Description
+						<label className="block text-sm font-medium text-zen-text-muted mb-1">
+							Description (Optional)
 						</label>
-						<input
-							type="text"
+						<VoiceInput
 							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-zen-primary transition-colors"
-							placeholder="Optional details..."
+							onValueChange={setDescription}
+							placeholder="What is this ritual about?"
+							rows={3}
 						/>
 					</div>
 
