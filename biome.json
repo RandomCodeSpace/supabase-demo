@@ -21,11 +21,15 @@
 					"level": "error",
 					"fix": "safe"
 				},
+
 				"noSvgWithoutTitle": "off",
 				"noStaticElementInteractions": "off",
 				"useButtonType": "off",
 				"useKeyWithClickEvents": "off",
 				"noLabelWithoutControl": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
 			},
 			"complexity": {
 				"noStaticOnlyClass": "off"
