@@ -75,10 +75,10 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				exit={{ opacity: 0, scale: 0.9 }}
-				className="w-full max-w-md bg-zen-surface border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[70vh]"
+				className="w-full max-w-md bg-zen-surface border border-black/5 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[70vh]"
 			>
 				{/* Header */}
-				<div className="p-6 relative z-10 border-b border-white/5 bg-zen-surface/80 backdrop-blur-md flex justify-between items-center">
+				<div className="p-6 relative z-10 border-b border-black/5 dark:border-white/5 bg-zen-surface/80 backdrop-blur-md flex justify-between items-center">
 					{/* Glow */}
 					<div
 						className="absolute top-0 right-0 w-32 h-32 bg-zen-primary/10 blur-3xl rounded-full pointer-events-none"
@@ -86,14 +86,14 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 					/>
 
 					<div>
-						<h2 className="text-xl font-bold text-white mb-0.5">
+						<h2 className="text-xl font-bold text-zen-text mb-0.5">
 							{habit.title}
 						</h2>
 						<p className="text-zen-text-muted text-xs">Ritual Notes</p>
 					</div>
 					<button
 						onClick={onClose}
-						className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"
+						className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
 					>
 						<X size={20} />
 					</button>
@@ -108,9 +108,9 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 								initial={{ opacity: 0, y: 10 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, scale: 0.9 }}
-								className="bg-white/5 border border-white/5 rounded-2xl p-4 relative group"
+								className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 relative group"
 							>
-								<p className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+								<p className="text-zen-text text-sm whitespace-pre-wrap leading-relaxed">
 									{note.content}
 								</p>
 								<p className="text-xs text-zen-text-muted mt-2 opacity-50">
@@ -133,7 +133,7 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 				</div>
 
 				{/* Input Area */}
-				<div className="p-4 bg-zen-surface border-t border-white/10 z-20">
+				<div className="p-4 bg-zen-surface border-t border-black/5 dark:border-white/10 z-20">
 					<VoiceInput
 						value={newNote}
 						onValueChange={setNewNote}

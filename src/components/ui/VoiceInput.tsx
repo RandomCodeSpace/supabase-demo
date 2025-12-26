@@ -73,7 +73,7 @@ export function VoiceInput({
 					}
 				}}
 				className={cn(
-					"w-full bg-white/5 border border-white/10 rounded-2xl pl-4 py-3 text-white focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed",
+					"w-full bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-2xl pl-4 py-3 text-zen-text focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed",
 					// Add extra padding if there is a right element (like a Send button)
 					rightElement ? "pr-24" : "pr-12",
 					className,
@@ -90,7 +90,7 @@ export function VoiceInput({
 							"p-2 rounded-xl transition-all",
 							isListening
 								? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
-								: "text-zen-text-muted hover:text-white bg-white/5 hover:bg-white/10",
+								: "text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
 						)}
 						title={isListening ? "Stop listening" : "Start dictation"}
 					>

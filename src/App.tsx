@@ -121,7 +121,7 @@ function App() {
 			<header className="flex flex-col items-center mb-8 space-y-4 relative">
 				<button
 					onClick={() => setShowProfileModal(true)}
-					className="absolute top-0 right-0 p-2 text-zen-text-muted hover:text-white transition-colors"
+					className="absolute top-0 right-0 p-2 text-zen-text-muted hover:text-zen-text transition-colors"
 				>
 					<Settings size={24} />
 				</button>
@@ -130,7 +130,7 @@ function App() {
 				<div className="text-center">
 					<div className="flex items-center justify-center gap-2 mb-1">
 						<Logo size={24} animate={false} />
-						<h1 className="text-2xl font-bold text-white">OSSFlow</h1>
+						<h1 className="text-2xl font-bold text-zen-text">OSSFlow</h1>
 					</div>
 					<p className="text-zen-text-muted">
 						{Math.round(todayProgress)}% completed
@@ -162,7 +162,7 @@ function App() {
 										style={{ backgroundColor: habit.color }}
 									/>
 									<div>
-										<h3 className="font-bold text-lg text-white">
+										<h3 className="font-bold text-lg text-zen-text">
 											{habit.title}
 										</h3>
 										{habit.description && (

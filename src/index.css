@@ -1,19 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap");
 @import "tailwindcss";
 
+@layer base {
+	:root {
+		/* Light Mode ("Ceramic White") */
+		--zen-bg: #d4d4d8;
+		/* Zinc-300: Significantly darker for reduced brightness */
+		--zen-surface: #f4f4f5;
+		/* Zinc-100: Distinct contrast from background */
+		--zen-primary: #15803d;
+		/* Green-700: Strong green */
+		--zen-accent: #22c55e;
+		--zen-error: #b91c1c;
+		--zen-text: #09090b;
+		/* Zinc-950 */
+		--zen-text-muted: #3f3f46;
+		/* Zinc-700 */
+		--zen-btn-primary: #15803d;
+	}
+
+	.dark {
+		/* Dark Mode ("Deep Zen") */
+		--zen-bg: #000000;
+		--zen-surface: #09090b;
+		--zen-primary: #22c55e;
+		--zen-accent: #4ade80;
+		--zen-error: #ef4444;
+		--zen-text: #fafafa;
+		--zen-text-muted: #a1a1aa;
+		--zen-btn-primary: #22c55e;
+	}
+}
+
 @theme {
 	--font-sans: "Outfit", sans-serif;
 
-	--color-zen-bg: #000000;
-	--color-zen-surface: #09090b;
-	--color-zen-primary: #22c55e;
-	--color-zen-accent: #4ade80;
-	--color-zen-error: #ef4444;
+	--color-zen-bg: var(--zen-bg);
+	--color-zen-surface: var(--zen-surface);
+	--color-zen-primary: var(--zen-primary);
+	--color-zen-accent: var(--zen-accent);
+	--color-zen-error: var(--zen-error);
 
-	--color-zen-text: #fafafa;
-	--color-zen-text-muted: #a1a1aa;
+	--color-zen-text: var(--zen-text);
+	--color-zen-text-muted: var(--zen-text-muted);
 
-	--color-zen-btn-primary: #22c55e;
+	--color-zen-btn-primary: var(--zen-btn-primary);
 }
 
 @layer base {
@@ -27,6 +58,6 @@
 
 @layer utilities {
 	.glass {
-		@apply bg-zen-surface/40 backdrop-blur-xl border border-white/5;
+		@apply bg-zen-surface/70 backdrop-blur-xl border border-black/20 dark:border-white/10 shadow-sm;
 	}
 }

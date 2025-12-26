@@ -42,13 +42,13 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 				initial={{ opacity: 0, y: 50 }}
 				animate={{ opacity: 1, y: 0 }}
 				exit={{ opacity: 0, y: 50 }}
-				className="w-full max-w-md bg-zen-surface border border-white/10 rounded-3xl p-6 shadow-2xl"
+				className="w-full max-w-md bg-zen-surface border border-black/5 dark:border-white/10 rounded-3xl p-6 shadow-2xl"
 			>
 				<div className="flex justify-between items-center mb-6">
-					<h2 className="text-xl font-bold text-white">New Ritual</h2>
+					<h2 className="text-xl font-bold text-zen-text">New Ritual</h2>
 					<button
 						onClick={onClose}
-						className="p-2 bg-white/5 rounded-full hover:bg-white/10"
+						className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
 					>
 						<X size={20} />
 					</button>

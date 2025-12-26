@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { LogOut, Trash2, User, X } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun, Trash2, User, X } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../lib/supabase";
 import { HabitService } from "../../services/habitService";
@@ -11,6 +12,7 @@ interface UserProfileModalProps {
 }
 
 export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
+	const { theme, setTheme } = useTheme();
 	const [loading, setLoading] = useState(false);
 	const { success, error } = useToast();
 
@@ -55,22 +57,22 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				exit={{ opacity: 0, scale: 0.9 }}
-				className="w-full max-w-sm bg-zen-surface border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative"
+				className="w-full max-w-sm bg-zen-surface border border-black/20 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl relative"
 			>
 				{/* Header */}
-				<div className="p-6 border-b border-white/5 bg-zen-surface flex justify-between items-center">
+				<div className="p-6 border-b border-black/10 dark:border-white/5 bg-zen-surface flex justify-between items-center">
 					<div className="flex items-center gap-3">
-						<div className="p-2 bg-white/5 rounded-full">
+						<div className="p-2 bg-black/5 dark:bg-white/5 rounded-full">
 							<User size={20} className="text-zen-primary" />
 						</div>
 						<div>
-							<h2 className="text-lg font-bold text-white">Profile</h2>
+							<h2 className="text-lg font-bold text-zen-text">Profile</h2>
 							<p className="text-xs text-zen-text-muted">{email}</p>
 						</div>
 					</div>
 					<button
 						onClick={onClose}
-						className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"
+						className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
 					>
 						<X size={20} />
 					</button>
@@ -78,19 +80,44 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 
 				{/* Actions */}
 				<div className="p-6 space-y-4">
+					<div>
+						<label className="block text-xs font-semibold text-zen-text-muted uppercase tracking-wider mb-2">
+							Appearance
+						</label>
+						<div className="grid grid-cols-3 gap-2 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+							{(["light", "dark", "system"] as const).map((t) => (
+								<button
+									key={t}
+									onClick={() => setTheme(t)}
+									className={`
+                                        flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all
+                                        ${theme === t
+											? "bg-white text-black shadow-sm"
+											: "text-zen-text-muted hover:text-zen-text"
+										}
+`}
+								>
+									{t === "light" && <Sun size={14} />}
+									{t === "dark" && <Moon size={14} />}
+									{t === "system" && <Monitor size={14} />}
+									<span className="capitalize">{t}</span>
+								</button>
+							))}
+						</div>
+					</div>
 					<button
 						onClick={handleSignOut}
 						disabled={loading}
-						className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group"
+						className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group"
 					>
-						<span className="text-white font-medium">Sign Out</span>
+						<span className="text-zen-text font-medium">Sign Out</span>
 						<LogOut
 							size={18}
-							className="text-zen-text-muted group-hover:text-white transition-colors"
+							className="text-zen-text-muted group-hover:text-zen-text transition-colors"
 						/>
 					</button>
 
-					<div className="pt-4 border-t border-white/5">
+					<div className="pt-4 border-t border-black/5 dark:border-white/5">
 						<button
 							onClick={handleDeleteAccount}
 							disabled={loading}
