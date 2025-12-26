@@ -19,8 +19,6 @@ export function SwipeableHabit({
 	color = "#4ade80",
 }: SwipeableHabitProps) {
 	const x = useMotionValue(0);
-	const _opacity = useTransform(x, [-100, -50, 0, 50, 100], [0, 1, 1, 1, 0]);
-	const _bgOpacity = useTransform(x, [-150, 0, 150], [1, 0, 1]); // Reveal background color
 	const scale = useTransform(x, [-150, 0, 150], [0.9, 1, 0.9]); // Squeeze effect
 
 	// Determine background color based on direction
