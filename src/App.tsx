@@ -1,12 +1,15 @@
 import type { Session } from "@supabase/supabase-js";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
 import { AddHabitModal } from "./components/ui/AddHabitModal";
 import { HabitDetailModal } from "./components/ui/HabitDetailModal";
+import { Logo } from "./components/ui/Logo";
 import { ProgressRing } from "./components/ui/ProgressRing";
 import { SwipeableHabit } from "./components/ui/SwipeableHabit";
+import { UserProfileModal } from "./components/ui/UserProfileModal";
+import { useToast } from "./context/ToastContext";
 import { supabase } from "./lib/supabase";
 import {
 	type Habit,
@@ -19,8 +22,11 @@ function App() {
 	const [habits, setHabits] = useState<Habit[]>([]);
 	const [logs, setLogs] = useState<HabitLog[]>([]);
 	const [showAddModal, setShowAddModal] = useState(false);
+	const [showProfileModal, setShowProfileModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 	const [todayProgress, setTodayProgress] = useState(0);
+
+	const { success, error: toastError } = useToast();
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -32,8 +38,9 @@ function App() {
 			setLogs(fetchedLogs);
 		} catch (error) {
 			console.error("Error fetching data:", error);
+			toastError("Failed to load data");
 		}
-	}, []);
+	}, [toastError]);
 
 	// Auth & Initial Load
 	useEffect(() => {
@@ -70,11 +77,13 @@ function App() {
 
 			if (result) {
 				setLogs([...logs, result]);
+				success("Ritual completed!");
 			} else {
 				setLogs(logs.filter((l) => l.habit_id !== habitId));
 			}
-		} catch (error) {
-			console.error("Error toggling completion:", error);
+		} catch (err) {
+			console.error("Error toggling completion:", err);
+			toastError("Failed to update status");
 		}
 	};
 
@@ -84,13 +93,16 @@ function App() {
 			await HabitService.deleteHabit(habitId);
 			setHabits(habits.filter((h) => h.id !== habitId));
 			setLogs(logs.filter((l) => l.habit_id !== habitId));
-		} catch (error) {
-			console.error("Error deleting habit:", error);
+			success("Ritual deleted");
+		} catch (err) {
+			console.error("Error deleting habit:", err);
+			toastError("Failed to delete ritual");
 		}
 	};
 
 	const handleAddHabit = (newHabit: Habit) => {
 		setHabits([newHabit, ...habits]);
+		success("New ritual started");
 	};
 
 	if (!session) return <Auth />;
@@ -98,10 +110,20 @@ function App() {
 	return (
 		<div className="min-h-screen pb-24 px-4 pt-8 max-w-md mx-auto relative">
 			{/* Header with Progress Ring */}
-			<header className="flex flex-col items-center mb-8 space-y-4">
+			<header className="flex flex-col items-center mb-8 space-y-4 relative">
+				<button
+					onClick={() => setShowProfileModal(true)}
+					className="absolute top-0 right-0 p-2 text-zen-text-muted hover:text-white transition-colors"
+				>
+					<Settings size={24} />
+				</button>
+
 				<ProgressRing percentage={todayProgress} size={160} color="#4ade80" />
 				<div className="text-center">
-					<h1 className="text-2xl font-bold text-white">Today's Flow</h1>
+					<div className="flex items-center justify-center gap-2 mb-1">
+						<Logo size={24} animate={false} />
+						<h1 className="text-2xl font-bold text-white">OSSFlow</h1>
+					</div>
 					<p className="text-zen-text-muted">
 						{Math.round(todayProgress)}% completed
 					</p>
@@ -181,6 +203,16 @@ function App() {
 					<HabitDetailModal
 						habit={selectedHabit}
 						onClose={() => setSelectedHabit(null)}
+					/>
+				)}
+			</AnimatePresence>
+
+			{/* Profile Modal */}
+			<AnimatePresence>
+				{showProfileModal && (
+					<UserProfileModal
+						email={session.user.email}
+						onClose={() => setShowProfileModal(false)}
 					/>
 				)}
 			</AnimatePresence>

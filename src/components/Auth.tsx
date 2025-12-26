@@ -1,6 +1,7 @@
 import { Github } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { Logo } from "./ui/Logo";
 import { ZenCard } from "./ui/ZenCard";
 
 export function Auth() {
@@ -28,9 +29,12 @@ export function Auth() {
 	return (
 		<div className="flex items-center justify-center min-h-[80vh] w-full p-4">
 			<ZenCard className="w-full max-w-sm text-center">
-				<div className="mb-8">
+				<div className="mb-8 flex flex-col items-center">
+					<div className="mb-4 p-4 bg-white/5 rounded-full ring-1 ring-white/10 shadow-2xl">
+						<Logo size={80} />
+					</div>
 					<h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white to-white/50 mb-2">
-						ZenFlow
+						OSSFlow
 					</h1>
 					<p className="text-zen-text-muted">Master your daily rituals.</p>
 				</div>
