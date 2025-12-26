@@ -60,7 +60,7 @@ export function SwipeableHabit({
 				style={{ x, scale }}
 				className={cn(
 					"relative bg-zen-surface border border-white/10 p-4 rounded-2xl z-10",
-					isCompleted ? "opacity-50" : "opacity-100",
+					"relative bg-zen-surface border border-white/10 p-4 rounded-2xl z-10",
 				)}
 			>
 				{children}

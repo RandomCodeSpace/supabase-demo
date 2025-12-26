@@ -4,6 +4,7 @@ import { Plus, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
 import { AddHabitModal } from "./components/ui/AddHabitModal";
+import { ConfirmationModal } from "./components/ui/ConfirmationModal";
 import { HabitDetailModal } from "./components/ui/HabitDetailModal";
 import { Logo } from "./components/ui/Logo";
 import { ProgressRing } from "./components/ui/ProgressRing";
@@ -24,6 +25,7 @@ function App() {
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [showProfileModal, setShowProfileModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+	const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 	const [todayProgress, setTodayProgress] = useState(0);
 
 	const { success, error: toastError } = useToast();
@@ -87,16 +89,22 @@ function App() {
 		}
 	};
 
-	const handleDelete = async (habitId: string) => {
-		if (!confirm("Delete this ritual?")) return;
+	const handleDelete = (habitId: string) => {
+		setHabitToDelete(habitId);
+	};
+
+	const confirmDelete = async () => {
+		if (!habitToDelete) return;
 		try {
-			await HabitService.deleteHabit(habitId);
-			setHabits(habits.filter((h) => h.id !== habitId));
-			setLogs(logs.filter((l) => l.habit_id !== habitId));
+			await HabitService.deleteHabit(habitToDelete);
+			setHabits(habits.filter((h) => h.id !== habitToDelete));
+			setLogs(logs.filter((l) => l.habit_id !== habitToDelete));
 			success("Ritual deleted");
 		} catch (err) {
 			console.error("Error deleting habit:", err);
 			toastError("Failed to delete ritual");
+		} finally {
+			setHabitToDelete(null);
 		}
 	};
 
@@ -216,6 +224,15 @@ function App() {
 					/>
 				)}
 			</AnimatePresence>
+
+			{/* Confirmation Modal */}
+			<ConfirmationModal
+				isOpen={!!habitToDelete}
+				onClose={() => setHabitToDelete(null)}
+				onConfirm={confirmDelete}
+				title="Delete Ritual?"
+				message="This action cannot be undone. All notes and history for this ritual will be lost."
+			/>
 		</div>
 	);
 }
