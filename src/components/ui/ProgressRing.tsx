@@ -46,7 +46,7 @@ export function ProgressRing({
 					stroke={color}
 					strokeWidth={strokeWidth}
 					fill="transparent"
-					strokeCheck="round"
+					strokeLinecap="round"
 					initial={{ strokeDashoffset: circumference }}
 					animate={{ strokeDashoffset: offset }}
 					transition={{ duration: 1, ease: "easeOut" }}
