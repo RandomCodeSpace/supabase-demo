@@ -57,84 +57,88 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				exit={{ opacity: 0, scale: 0.9 }}
-				className="w-full max-w-sm bg-zen-surface border border-black/20 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl relative"
+				className="relative w-full max-w-sm"
 			>
-				{/* Header */}
-				<div className="p-6 border-b border-black/10 dark:border-white/5 bg-zen-surface flex justify-between items-center">
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-black/5 dark:bg-white/5 rounded-full">
-							<User size={20} className="text-zen-primary" />
+				<div className="glow-behind bg-zen-text/10" />
+				<div className="glass-3d rounded-3xl overflow-hidden relative z-10">
+					{/* Header */}
+					<div className="p-6 border-b border-black/5 dark:border-white/5 flex justify-between items-center">
+						<div className="flex items-center gap-3">
+							<div className="p-2 bg-black/5 dark:bg-white/5 rounded-full">
+								<User size={20} className="text-zen-primary" />
+							</div>
+							<div>
+								<h2 className="text-lg font-bold text-zen-text">Profile</h2>
+								<p className="text-xs text-zen-text-muted">{email}</p>
+							</div>
 						</div>
-						<div>
-							<h2 className="text-lg font-bold text-zen-text">Profile</h2>
-							<p className="text-xs text-zen-text-muted">{email}</p>
-						</div>
-					</div>
-					<button
-						onClick={onClose}
-						className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-					>
-						<X size={20} />
-					</button>
-				</div>
-
-				{/* Actions */}
-				<div className="p-6 space-y-4">
-					<div>
-						<label className="block text-xs font-semibold text-zen-text-muted uppercase tracking-wider mb-2">
-							Appearance
-						</label>
-						<div className="grid grid-cols-3 gap-2 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
-							{(["light", "dark", "system"] as const).map((t) => (
-								<button
-									key={t}
-									onClick={() => setTheme(t)}
-									className={`
-                                        flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all
-                                        ${theme === t
-											? "bg-white text-black shadow-sm"
-											: "text-zen-text-muted hover:text-zen-text"
-										}
-`}
-								>
-									{t === "light" && <Sun size={14} />}
-									{t === "dark" && <Moon size={14} />}
-									{t === "system" && <Monitor size={14} />}
-									<span className="capitalize">{t}</span>
-								</button>
-							))}
-						</div>
-					</div>
-					<button
-						onClick={handleSignOut}
-						disabled={loading}
-						className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group"
-					>
-						<span className="text-zen-text font-medium">Sign Out</span>
-						<LogOut
-							size={18}
-							className="text-zen-text-muted group-hover:text-zen-text transition-colors"
-						/>
-					</button>
-
-					<div className="pt-4 border-t border-black/5 dark:border-white/5">
 						<button
-							onClick={handleDeleteAccount}
-							disabled={loading}
-							className="w-full flex items-center justify-between p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl transition-all group"
+							onClick={onClose}
+							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
 						>
-							<span className="text-red-400 font-medium group-hover:text-red-300">
-								Delete Data & Reset
-							</span>
-							<Trash2
+							<X size={20} />
+						</button>
+					</div>
+
+					{/* Actions */}
+					<div className="p-6 space-y-4">
+						<div>
+							<label className="block text-xs font-semibold text-zen-text-muted uppercase tracking-wider mb-2">
+								Appearance
+							</label>
+							<div className="grid grid-cols-3 gap-2 bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+								{(["light", "dark", "system"] as const).map((t) => (
+									<button
+										key={t}
+										onClick={() => setTheme(t)}
+										className={`
+                                        flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all
+                                        ${
+																					theme === t
+																						? "bg-white text-black shadow-sm"
+																						: "text-zen-text-muted hover:text-zen-text"
+																				}
+`}
+									>
+										{t === "light" && <Sun size={14} />}
+										{t === "dark" && <Moon size={14} />}
+										{t === "system" && <Monitor size={14} />}
+										<span className="capitalize">{t}</span>
+									</button>
+								))}
+							</div>
+						</div>
+						<button
+							onClick={handleSignOut}
+							disabled={loading}
+							className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group"
+						>
+							<span className="text-zen-text font-medium">Sign Out</span>
+							<LogOut
 								size={18}
-								className="text-red-400 group-hover:text-red-300"
+								className="text-zen-text-muted group-hover:text-zen-text transition-colors"
 							/>
 						</button>
-						<p className="text-[10px] text-zen-text-muted mt-2 text-center opacity-70">
-							This action strictly deletes your habit data. It does not delete
-							your authentication account.
-						</p>
+
+						<div className="pt-4 border-t border-black/5 dark:border-white/5">
+							<button
+								onClick={handleDeleteAccount}
+								disabled={loading}
+								className="w-full flex items-center justify-between p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl transition-all group"
+							>
+								<span className="text-red-400 font-medium group-hover:text-red-300">
+									Delete Data & Reset
+								</span>
+								<Trash2
+									size={18}
+									className="text-red-400 group-hover:text-red-300"
+								/>
+							</button>
+							<p className="text-[10px] text-zen-text-muted mt-2 text-center opacity-70">
+								This action strictly deletes your habit data. It does not delete
+								your authentication account.
+							</p>
+						</div>
 					</div>
 				</div>
 			</motion.div>

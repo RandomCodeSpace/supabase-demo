@@ -57,7 +57,24 @@
 }
 
 @layer utilities {
+	/* Base Glass */
 	.glass {
-		@apply bg-zen-surface/70 backdrop-blur-xl border border-black/20 dark:border-white/10 shadow-sm;
+		@apply bg-zen-surface/70 backdrop-blur-xl border border-black/20 dark:border-white/10 shadow-sm transition-all duration-300;
+	}
+
+	/* 3D Pop-out Glass */
+	.glass-3d {
+		@apply bg-zen-surface/80 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-2xl shadow-black/20 dark:shadow-black/80;
+		/* Inner subtle highlight for 3D edge */
+		box-shadow:
+			0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+			/* Inner bezel */
+			0 20px 25px -5px rgba(0, 0, 0, 0.1),
+			0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	}
+
+	/* Glow effect helper */
+	.glow-behind {
+		@apply absolute -inset-4 rounded-3xl blur-2xl opacity-20 bg-zen-primary z-0 pointer-events-none;
 	}
 }

@@ -11,11 +11,11 @@ interface ZenCardProps {
 export function ZenCard({ children, className, onClick }: ZenCardProps) {
 	return (
 		<motion.div
-			whileHover={{ scale: 1.02 }}
+			whileHover={{ scale: 1.05, y: -5 }}
 			whileTap={{ scale: 0.98 }}
 			className={cn(
-				"glass rounded-2xl p-6 shadow-2xl relative overflow-hidden",
-				"bg-gradient-to-br from-white/5 to-white/0",
+				"glass-3d rounded-2xl p-6 relative overflow-hidden group",
+				"bg-gradient-to-br from-white/10 to-transparent dark:from-white/5 dark:to-transparent",
 				className,
 			)}
 			onClick={onClick}
