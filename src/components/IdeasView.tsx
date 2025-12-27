@@ -1,11 +1,12 @@
 import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
 import { Lightbulb, Plus } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
 import { ShinyButton } from "./magicui/shiny-button";
 import { BlurFade } from "./magicui/blur-fade";
-import { type Project, ProjectService } from "../backbone/services/projectService";
+import { type Project } from "../backbone/services/projectService";
+import { useProjectStore } from "../stores/useProjectStore";
 import { AddProjectModal } from "./ideas/AddProjectModal";
 // import { ProjectCard } from "./ideas/ProjectCard";
 import { ProjectDetailModal } from "./ideas/ProjectDetailModal";
@@ -15,31 +16,17 @@ import { BentoCard, BentoGrid } from "./magicui/bento-grid";
 import { BorderBeam } from "./magicui/border-beam";
 
 export function IdeasView() {
-	const [projects, setProjects] = useState<Project[]>([]);
+	const { projects, isLoading: loading, fetchProjects, addProject } = useProjectStore();
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-	const { success, error } = useToast();
-	const [loading, setLoading] = useState(true);
-
-	const loadProjects = useCallback(async () => {
-		try {
-			setLoading(true);
-			const data = await ProjectService.fetchProjects();
-			setProjects(data);
-		} catch (err) {
-			console.error(err);
-			error("Failed to load ideas");
-		} finally {
-			setLoading(false);
-		}
-	}, [error]);
+	const { success } = useToast();
 
 	useEffect(() => {
-		loadProjects();
-	}, [loadProjects]);
+		fetchProjects();
+	}, [fetchProjects]);
 
 	const handleAddProject = (newProject: Project) => {
-		setProjects([newProject, ...projects]);
+		addProject(newProject);
 		success("New idea conceptualized!");
 	};
 
@@ -138,7 +125,7 @@ export function IdeasView() {
 					<ProjectDetailModal
 						project={selectedProject}
 						onClose={() => setSelectedProject(null)}
-						onUpdate={loadProjects}
+						onUpdate={fetchProjects}
 					/>
 				)}
 			</AnimatePresence>

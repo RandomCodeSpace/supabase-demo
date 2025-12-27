@@ -32,11 +32,11 @@ export function Toast({ id, message, type, onClose, onConfirm }: ToastProps) {
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, y: 50, scale: 0.9 }}
+			initial={{ opacity: 0, y: -20, scale: 0.9 }}
 			animate={{ opacity: 1, y: 0, scale: 1 }}
 			exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
 			layout
-			className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-3 px-4 py-4 rounded-2xl shadow-2xl backdrop-blur-md bg-white/95 dark:bg-zen-surface/95 border border-black/5 dark:border-white/10 min-w-[320px] max-w-[90vw] ${type === "confirmation" ? "items-start" : "flex-row items-center"
+			className={`flex flex-col gap-3 px-4 py-4 rounded-2xl shadow-2xl backdrop-blur-md bg-white/95 dark:bg-zen-surface/95 border border-black/5 dark:border-white/10 min-w-[320px] max-w-[90vw] ${type === "confirmation" ? "items-start" : "flex-row items-center"
 				}`}
 		>
 			<div className="flex items-start gap-3 w-full">
@@ -112,7 +112,7 @@ export function ToastContainer({
 	removeToast: (id: string) => void;
 }) {
 	return (
-		<div className="fixed bottom-0 left-0 right-0 z-[60] flex flex-col items-center pointer-events-none p-4 space-y-2">
+		<div className="fixed top-20 left-0 right-0 z-[60] flex flex-col items-center pointer-events-none p-4 space-y-2">
 			<AnimatePresence>
 				{toasts.map((toast) => (
 					<div key={toast.id} className="pointer-events-auto">
