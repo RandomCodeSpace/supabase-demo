@@ -84,7 +84,11 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	};
 
 	return (
-		<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+		<div
+			role="dialog"
+			aria-modal="true"
+			className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+		>
 			{/* Blocking Confirmation Overlay */}
 			{confirmation && (
 				<div className="fixed inset-0 z-[101] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">

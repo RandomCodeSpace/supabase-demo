@@ -1,0 +1,5 @@
+# AI Protocol
+
+1.  **Documentation First**: The files in `docs/` (`DEVELOPER_GUIDE.md` and `IMPLEMENTATION_CHECKLIST.md`) are the Source of Truth for this project.
+2.  **Maintenance**: ANY change to Architecture, Database Schema, or Core Services (Sync) MUST be reflected in `DEVELOPER_GUIDE.md`.
+3.  **Reference**: Before starting complex tasks, read `DEVELOPER_GUIDE.md` to understand the Offline-First architecture.

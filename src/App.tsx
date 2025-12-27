@@ -107,12 +107,18 @@ function App() {
 	}, []);
 
 	// Gesture Navigation
-	const bind = useDrag(({ event, movement: [mx], direction: [xDir], velocity: [vx], cancel }) => {
-		// Ignore if interacting with swipeable items (prevent conflicts)
+	const bind = useDrag(({ event, movement: [mx, my], direction: [xDir], velocity: [vx], cancel }) => {
+		// 1. Block if ANY modal is open (Profile, HabitDetail, ProjectDetail)
+		// We check for the generic modal overlay/dialog presence
+		if (document.querySelector('[role="dialog"]') || document.querySelector('.fixed.inset-0.z-\\[100\\]')) return;
+
+		// 2. Block if interacting with swipeable items (prevent conflicts)
+		// Check if the target or any of its parents has the prevention class
 		if ((event?.target as HTMLElement)?.closest('.swipe-prevention')) return;
 
 		if (vx < 0.2) return; // Ignore slow swipes
 		if (Math.abs(mx) < 100) return; // Ignore short swipes
+		if (Math.abs(my) > 50) return; // Ignore diagonal/vertical swipes (scrolling)
 
 		if (xDir < 0 && activeTab === "ideas") {
 			setActiveTab("todos");
@@ -124,6 +130,7 @@ function App() {
 	}, {
 		axis: 'x',
 		filterTaps: true,
+		// preventDefault: true, // Be careful with this, might block scroll
 	});
 
 	if (!session) return <Auth />;
