@@ -42,10 +42,10 @@ export function Toast({ id, message, type, onClose, onConfirm }: ToastProps) {
 			<div className="flex items-start gap-3 w-full">
 				<div
 					className={`p-2 rounded-full shrink-0 ${type === "success"
-							? "bg-green-500/10"
-							: type === "error"
-								? "bg-red-500/10"
-								: "bg-amber-500/10"
+						? "bg-green-500/10"
+						: type === "error"
+							? "bg-red-500/10"
+							: "bg-amber-500/10"
 						}`}
 				>
 					{type === "success" && <CheckCircle className="w-5 h-5 text-green-500" />}
@@ -85,14 +85,14 @@ export function Toast({ id, message, type, onClose, onConfirm }: ToastProps) {
 					<div className="flex gap-2 justify-end pt-1">
 						<button
 							onClick={() => onClose(id)}
-							className="px-3 py-1.5 text-xs font-medium text-zen-text-muted hover:text-zen-text hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors"
+							className="px-3 py-1.5 text-xs font-medium text-zen-text-muted hover:text-zen-text hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors"
 						>
 							Cancel
 						</button>
 						<button
 							onClick={handleConfirm}
 							disabled={!isChecked}
-							className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-red-500 hover:bg-red-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all"
+							className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-red-500 hover:bg-red-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-sm transition-all"
 						>
 							<Trash2 size={12} />
 							Delete Everything

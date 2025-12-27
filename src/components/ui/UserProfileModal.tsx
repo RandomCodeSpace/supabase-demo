@@ -92,7 +92,7 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 										key={t}
 										onClick={() => setTheme(t)}
 										className={`
-                                        flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all
+                                        flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all
                                         ${theme === t
 												? "bg-white text-black shadow-sm"
 												: "text-zen-text-muted hover:text-zen-text"
