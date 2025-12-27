@@ -72,6 +72,10 @@ export function VoiceInput({
 						textBeforeListening.current = e.target.value;
 					}
 				}}
+				onFocus={(e) => {
+					e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+					props.onFocus?.(e);
+				}}
 				className={cn(
 					"w-full bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-2xl pl-4 py-3 text-zen-text focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed",
 					// Add extra padding if there is a right element (like a Send button)

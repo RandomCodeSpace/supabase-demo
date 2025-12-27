@@ -6,6 +6,7 @@ import {
 	type HabitNote,
 	HabitService,
 } from "../../services/habitService";
+import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
 
 interface HabitDetailModalProps {
@@ -17,6 +18,7 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 	const [notes, setNotes] = useState<HabitNote[]>([]);
 	const [newNote, setNewNote] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [loadingData, setLoadingData] = useState(true);
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const scrollToBottom = useCallback(() => {
@@ -29,11 +31,14 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 
 	const loadNotes = useCallback(async () => {
 		try {
+			setLoadingData(true);
 			const data = await HabitService.fetchNotes(habit.id);
 			setNotes(data);
 			scrollToBottom();
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setLoadingData(false);
 		}
 	}, [habit.id, scrollToBottom]);
 
@@ -77,6 +82,11 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 				exit={{ opacity: 0, scale: 0.9 }}
 				className="relative w-full max-w-md h-[70vh]"
 			>
+				{(loading || loadingData) && (
+					<LoadingOverlay
+						message={loadingData ? "Loading details..." : "Saving..."}
+					/>
+				)}
 				<div
 					className="glow-behind"
 					style={{ backgroundColor: habit.color, opacity: 0.2 }}
@@ -94,7 +104,7 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 							<h2 className="text-xl font-bold text-zen-text mb-0.5">
 								{habit.title}
 							</h2>
-							<p className="text-zen-text-muted text-xs">Ritual Notes</p>
+							<p className="text-zen-text-muted text-xs">Todo Notes</p>
 						</div>
 						<button
 							onClick={onClose}
@@ -130,9 +140,9 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 								</motion.div>
 							))}
 						</AnimatePresence>
-						{notes.length === 0 && (
+						{!loadingData && notes.length === 0 && (
 							<div className="text-center text-zen-text-muted/50 py-10 text-sm">
-								No notes yet. Start the journal.
+								No notes yet. Start the diary.
 							</div>
 						)}
 					</div>

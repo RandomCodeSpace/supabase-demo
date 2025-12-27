@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { type Habit, HabitService } from "../../services/habitService";
+import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
 
 interface AddHabitModalProps {
@@ -44,10 +45,11 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 				exit={{ opacity: 0, y: 50 }}
 				className="relative w-full max-w-md"
 			>
+				{loading && <LoadingOverlay message="Starting todo..." />}
 				<div className="glow-behind bg-zen-primary/30" />
 				<div className="glass-3d rounded-3xl p-6 relative z-10">
 					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-xl font-bold text-zen-text">New Ritual</h2>
+						<h2 className="text-xl font-bold text-zen-text">New Todo</h2>
 						<button
 							onClick={onClose}
 							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
@@ -82,7 +84,7 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 							<VoiceInput
 								value={description}
 								onValueChange={setDescription}
-								placeholder="What is this ritual about?"
+								placeholder="What is this todo about?"
 								rows={3}
 							/>
 						</div>
@@ -92,7 +94,7 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 							disabled={!title || loading}
 							className="w-full bg-zen-primary text-black font-bold py-4 rounded-xl mt-4 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
 						>
-							{loading ? "Creating..." : "Start Ritual"}
+							{loading ? "Creating..." : "Start Todo"}
 						</button>
 					</form>
 				</div>

@@ -6,6 +6,7 @@ export interface Project {
 	name: string;
 	description?: string;
 	created_at: string;
+	featureCount?: number;
 }
 
 export interface ProjectFeature {
@@ -22,11 +23,16 @@ export const ProjectService = {
 	async fetchProjects() {
 		const { data, error } = await supabase
 			.from("projects")
-			.select("*")
+			.select("*, project_features(count)")
 			.order("created_at", { ascending: false });
 
 		if (error) throw error;
-		return data as Project[];
+
+		// Map the response to include featureCount
+		return data.map((p: any) => ({
+			...p,
+			featureCount: p.project_features[0]?.count || 0,
+		})) as Project[];
 	},
 
 	async createProject(project: { name: string; description?: string }) {

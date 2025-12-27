@@ -10,16 +10,17 @@ import {
 import { AddHabitModal } from "./ui/AddHabitModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
+import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
 import { ProgressRing } from "./ui/ProgressRing";
 import { SwipeableHabit } from "./ui/SwipeableHabit";
 import { UserProfileModal } from "./ui/UserProfileModal";
 
-interface RitualsViewProps {
+interface TodosViewProps {
 	userEmail: string | undefined;
 }
 
-export function RitualsView({ userEmail }: RitualsViewProps) {
+export function TodosView({ userEmail }: TodosViewProps) {
 	const [habits, setHabits] = useState<Habit[]>([]);
 	const [logs, setLogs] = useState<HabitLog[]>([]);
 	const [showAddModal, setShowAddModal] = useState(false);
@@ -27,11 +28,13 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 	const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 	const [todayProgress, setTodayProgress] = useState(0);
+	const [loading, setLoading] = useState(true);
 
 	const { success, error: toastError } = useToast();
 
 	const fetchData = useCallback(async () => {
 		try {
+			setLoading(true);
 			const [fetchedHabits, fetchedLogs] = await Promise.all([
 				HabitService.fetchHabits(),
 				HabitService.fetchTodayLogs(),
@@ -41,6 +44,8 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 		} catch (error) {
 			console.error("Error fetching data:", error);
 			toastError("Failed to load data");
+		} finally {
+			setLoading(false);
 		}
 	}, [toastError]);
 
@@ -67,7 +72,7 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 
 			if (result) {
 				setLogs([...logs, result]);
-				success("Ritual completed!");
+				success("Todo completed!");
 			} else {
 				setLogs(logs.filter((l) => l.habit_id !== habitId));
 			}
@@ -87,10 +92,10 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 			await HabitService.deleteHabit(habitToDelete);
 			setHabits(habits.filter((h) => h.id !== habitToDelete));
 			setLogs(logs.filter((l) => l.habit_id !== habitToDelete));
-			success("Ritual deleted");
+			success("Todo deleted");
 		} catch (err) {
 			console.error("Error deleting habit:", err);
-			toastError("Failed to delete ritual");
+			toastError("Failed to delete todo");
 		} finally {
 			setHabitToDelete(null);
 		}
@@ -98,11 +103,13 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 
 	const handleAddHabit = (newHabit: Habit) => {
 		setHabits([newHabit, ...habits]);
-		success("New ritual started");
+		success("New todo started");
 	};
 
 	return (
-		<div className="pb-24 pt-8">
+		<div className="pb-24 pt-8 min-h-screen relative">
+			{loading && <LoadingOverlay message="Loading todos..." />}
+
 			{/* Header with Progress Ring */}
 			<header className="flex flex-col items-center mb-8 space-y-4 relative">
 				<button
@@ -116,7 +123,7 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 				<div className="text-center">
 					<div className="flex items-center justify-center gap-2 mb-1">
 						<Logo size={24} animate={false} />
-						<h1 className="text-2xl font-bold text-zen-text">Rituals</h1>
+						<h1 className="text-2xl font-bold text-zen-text">Todos</h1>
 					</div>
 					<p className="text-zen-text-muted">
 						{Math.round(todayProgress)}% completed
@@ -165,7 +172,7 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 
 				{habits.length === 0 && (
 					<div className="text-center text-zen-text-muted py-12">
-						<p>No rituals yet.</p>
+						<p>No todos yet.</p>
 						<p className="text-sm">Tap + to start your journey.</p>
 					</div>
 				)}
@@ -176,7 +183,7 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 				whileHover={{ scale: 1.1 }}
 				whileTap={{ scale: 0.9 }}
 				onClick={() => setShowAddModal(true)}
-				className="fixed bottom-24 right-8 w-16 h-16 bg-zen-btn-primary rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 z-40 bg-white text-black glass-3d"
+				className="fixed bottom-32 right-8 w-16 h-16 !bg-zen-btn-primary rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 z-40 text-white glass-3d"
 			>
 				<Plus size={32} />
 			</motion.button>
@@ -216,8 +223,8 @@ export function RitualsView({ userEmail }: RitualsViewProps) {
 				isOpen={!!habitToDelete}
 				onClose={() => setHabitToDelete(null)}
 				onConfirm={confirmDelete}
-				title="Delete Ritual?"
-				message="This action cannot be undone. All notes and history for this ritual will be lost."
+				title="Delete Todo?"
+				message="This action cannot be undone. All notes and history for this todo will be lost."
 			/>
 		</div>
 	);
