@@ -6,7 +6,6 @@ const TABLES = [
     "habits",
     "habit_logs",
     "habit_notes",
-    "todos",
     "projects",
     "project_features",
 ] as const;
