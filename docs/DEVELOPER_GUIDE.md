@@ -143,6 +143,25 @@ The app uses a hybrid navigation model via `src/components/layout/AppLayout.tsx`
 2.  **Todos**: The primary Habit Tracker view.
 
 ### B. Polish & Interactions
--   **Gestures**: Global horizontal swipe switches tabs. Conflict prevention is implemented for `SwipeableHabit` components (using `.swipe-prevention` class).
--   **Modals**: All modals use `z-[100]` to overlay the bottom navigation bar. Inputs use `bg-transparent` for full glassmorphism integration.
+### B. Polish & Interactions
+-   **Gestures**:
+    -   Global horizontal swipe switches tabs.
+    -   **Conflict Resolution**: `App.tsx` intelligently blocks global swipes if:
+        -   A Modal (`role="dialog"`) is open.
+        -   The user is interacting with a `SwipeableHabit` or `SwipeableWrapper` (swiping items to delete).
+-   **Modals**:
+    -   All modals use `z-[100]` to overlay the bottom navigation bar.
+    -   **Blocking Confirmation**: Critical actions ("Clear Data") use a `z-[101]` overlay that completely blocks interaction until confirmed.
+-   **Scrolling**:
+    -   **Fixed Headers**: Views (`TodosView`, `IdeasView`) use a fixed header layout (`flex-col`, `shrink-0`).
+    -   **Independent Scroll**: Only the content list scrolls (`flex-1 overflow-y-auto no-scrollbar`). Global window scrolling is disabled.
+
+### C. Data Reset Workflows
+-   **Logout**: Clears Session.
+-   **Clear Data & Logout**: Deletes all habits/projects from IDB and signs out.
+-   **Emergency Reset**:
+    -   Triggered from Profile.
+    -   Wipes **IndexedDB** (Dexie + idb-keyval) and **localStorage**.
+    -   Reloads application.
+    -   Use this if the client state becomes corrupted or stuck.
 

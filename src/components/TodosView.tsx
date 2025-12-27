@@ -91,11 +91,11 @@ export function TodosView() {
 	});
 
 	return (
-		<div {...bind()} className="pb-24 min-h-full relative">
+		<div {...bind()} className="h-full flex flex-col relative w-full">
 			{loading && <LoadingOverlay message="Loading todos..." />}
 
 			{/* Header with Progress Ring */}
-			<header className="flex flex-col items-center mb-8 space-y-4 relative">
+			<header className="flex flex-col items-center mb-6 space-y-4 relative shrink-0">
 				<ProgressRing percentage={todayProgress} size={160} color="#4ade80" />
 				<div className="text-center">
 					<div className="flex items-center justify-center gap-2 mb-1">
@@ -108,8 +108,10 @@ export function TodosView() {
 				</div>
 			</header>
 
-			{/* Habits List */}
-			<div className="space-y-4">
+			{/* Habits List Container (Scrollable) */}
+			{/* Added pb-24 for mobile nav and FAB clearance */}
+			{/* Added pt-4 to prevent first item shadow clipping */}
+			<div className="flex-1 overflow-y-auto min-h-0 space-y-4 pb-24 pt-4 px-1 -mx-1 no-scrollbar">
 				<AnimatePresence>
 					{habits.map((habit, idx) => {
 						const isCompleted = logs.some(

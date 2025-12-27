@@ -18,8 +18,8 @@ export function AppLayout({ children, activeTab, onTabChange }: AppLayoutProps) 
 
             {/* Main Content */}
             <main className="flex-1 relative h-full overflow-hidden flex flex-col">
-                <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth p-4 md:p-8 pb-32 md:pb-8">
-                    <div className="max-w-7xl mx-auto w-full">
+                <div className="flex-1 overflow-hidden p-4 md:p-8 pb-32 md:pb-8 flex flex-col">
+                    <div className="max-w-7xl mx-auto w-full h-full flex flex-col">
                         {children}
                     </div>
                 </div>

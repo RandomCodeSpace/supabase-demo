@@ -75,4 +75,9 @@ Use this checklist to track the reconstruction or validation of the OSSFlow appl
 - [x] **Logic Fixes**:
     - [x] Todo Progress Calculation (Unique active habits only).
     - [x] Gesture Conflict (SwipeableHabit vs Global Tabs).
+    - [x] **New Features**:
+        - [x] Swipe-to-Delete for Projects (Ideas View).
+        - [x] Fixed Headers & Independent Scrolling.
+        - [x] Invisible Scrollbars (`no-scrollbar`).
+        - [x] Blocking Confirmation Modals.
 

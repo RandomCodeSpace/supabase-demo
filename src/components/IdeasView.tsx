@@ -14,12 +14,13 @@ import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
 import { BentoCard, BentoGrid } from "./magicui/bento-grid";
 import { BorderBeam } from "./magicui/border-beam";
+import { SwipeableWrapper } from "./ui/SwipeableWrapper";
 
 export function IdeasView() {
-	const { projects, isLoading: loading, fetchProjects, addProject } = useProjectStore();
+	const { projects, isLoading: loading, fetchProjects, addProject, deleteProject } = useProjectStore();
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-	const { success } = useToast();
+	const { success, confirm } = useToast();
 
 	useEffect(() => {
 		fetchProjects();
@@ -47,10 +48,10 @@ export function IdeasView() {
 	});
 
 	return (
-		<div {...bind()} className="pb-24 min-h-full relative">
+		<div {...bind()} className="h-full flex flex-col relative w-full">
 			{loading && <LoadingOverlay message="Loading ideas..." />}
 			{/* Header */}
-			<header className="flex flex-col items-center mb-8 space-y-4 relative">
+			<header className="flex flex-col items-center mb-6 space-y-4 relative shrink-0">
 				<div className="glass-3d p-4 rounded-full bg-zen-surface text-cyan-500">
 					<Lightbulb size={48} />
 				</div>
@@ -63,45 +64,59 @@ export function IdeasView() {
 				</div>
 			</header>
 
-			{/* Projects Grid */}
-			<BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-				<AnimatePresence>
-					{projects.map((project, idx) => (
-						<BlurFade key={project.id} delay={0.04 * idx} inView className="h-full">
-							<BentoCard
-								name={project.name}
-								description={project.description}
-								featureCount={project.featureCount}
-								onClick={() => setSelectedProject(project)}
-								className="h-full"
-								background={
-									<div className="absolute inset-0 z-0 opacity-50 flex items-center justify-center">
-										{/* Abstract geometry/icon as background */}
-										<div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 blur-3xl animate-pulse" />
-									</div>
-								}
-							>
-								{/* Border Beam for 'Active' or newest project as a highlight */}
-								{idx === 0 && (
-									<BorderBeam
-										size={150}
-										duration={10}
-										colorFrom="#00E5FF" // Cyan accent
-										colorTo="#A855F7" // Purple accent
-									/>
-								)}
-							</BentoCard>
-						</BlurFade>
-					))}
-				</AnimatePresence>
-			</BentoGrid>
+			{/* Projects Grid Container (Scrollable) */}
+			{/* Added pb-24 for mobile nav and FAB clearance */}
+			{/* Added pt-4 to prevent first item shadow clipping */}
+			<div className="flex-1 overflow-y-auto min-h-0 pb-24 pt-4 px-1 -mx-1 no-scrollbar">
+				<BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+					<AnimatePresence>
+						{projects.map((project, idx) => (
+							<BlurFade key={project.id} delay={0.04 * idx} inView className="h-full">
+								<SwipeableWrapper
+									onDelete={() => {
+										confirm("Delete this idea?", async () => {
+											await deleteProject(project.id);
+											success("Project deleted");
+										});
+									}}
+									className="h-full"
+								>
+									<BentoCard
+										name={project.name}
+										description={project.description}
+										featureCount={project.featureCount}
+										onClick={() => setSelectedProject(project)}
+										className="h-full"
+										background={
+											<div className="absolute inset-0 z-0 opacity-50 flex items-center justify-center">
+												{/* Abstract geometry/icon as background */}
+												<div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 blur-3xl animate-pulse" />
+											</div>
+										}
+									>
+										{/* Border Beam for 'Active' or newest project as a highlight */}
+										{idx === 0 && (
+											<BorderBeam
+												size={150}
+												duration={10}
+												colorFrom="#00E5FF" // Cyan accent
+												colorTo="#A855F7" // Purple accent
+											/>
+										)}
+									</BentoCard>
+								</SwipeableWrapper>
+							</BlurFade>
+						))}
+					</AnimatePresence>
+				</BentoGrid>
 
-			{projects.length === 0 && !loading && (
-				<div className="text-center text-zen-text-muted py-12">
-					<p>No ideas yet.</p>
-					<p className="text-sm">Tap + to start brainstorming.</p>
-				</div>
-			)}
+				{projects.length === 0 && !loading && (
+					<div className="text-center text-zen-text-muted py-12">
+						<p>No ideas yet.</p>
+						<p className="text-sm">Tap + to start brainstorming.</p>
+					</div>
+				)}
+			</div>
 
 			{/* FAB */}
 			<div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
