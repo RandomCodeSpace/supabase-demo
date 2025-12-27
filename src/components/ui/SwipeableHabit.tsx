@@ -63,8 +63,7 @@ export function SwipeableHabit({
 				onDragEnd={handleDragEnd}
 				style={{ x, scale }}
 				className={cn(
-					"relative bg-zen-surface border border-white/10 p-4 rounded-2xl z-10",
-					"relative bg-zen-surface border border-white/10 p-4 rounded-2xl z-10",
+					"relative bg-zen-surface border border-white/10 p-4 rounded-2xl z-10 swipe-prevention",
 				)}
 			>
 				{children}

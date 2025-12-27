@@ -16,7 +16,7 @@ import { SyncService } from "./backbone/services/syncService";
 function App() {
 	const { session, setSession } = useAuthStore();
 	// Active Tab with Persistence
-	const [activeTab, setActiveTabPrivate] = useState<string>("todos");
+	const [activeTab, setActiveTabPrivate] = useState<string>("ideas");
 
 	// Load saved tab on mount
 	useEffect(() => {
@@ -101,7 +101,10 @@ function App() {
 	}, []);
 
 	// Gesture Navigation
-	const bind = useDrag(({ movement: [mx], direction: [xDir], velocity: [vx], cancel }) => {
+	const bind = useDrag(({ event, movement: [mx], direction: [xDir], velocity: [vx], cancel }) => {
+		// Ignore if interacting with swipeable items (prevent conflicts)
+		if ((event?.target as HTMLElement)?.closest('.swipe-prevention')) return;
+
 		if (vx < 0.2) return; // Ignore slow swipes
 		if (Math.abs(mx) < 100) return; // Ignore short swipes
 
