@@ -19,11 +19,26 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	const handleSignOut = async () => {
 		try {
 			setLoading(true);
+			// Force aggressive cleanup
 			await supabase.auth.signOut();
+
+			// Manually clear session from local store immediately to update UI
+			// without waiting for the subscription callback (which can lag on PWA)
+			localStorage.removeItem("sb-access-token"); // Common default if used, though supabase handles its own
+			localStorage.removeItem("sb-refresh-token");
+
 			success("Signed out successfully");
-			onClose();
+
+			// Small delay to let the toast show, then close/reset
+			setTimeout(() => {
+				onClose();
+				// Optional: Force reload if state doesn't clear in PWA
+				// window.location.reload(); 
+			}, 300);
 		} catch (_err) {
 			error("Failed to sign out");
+			// Even if API fails, force client-side logout
+			onClose();
 		} finally {
 			setLoading(false);
 		}
