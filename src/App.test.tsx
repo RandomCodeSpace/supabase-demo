@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import App from "./App";
-import { HabitService } from "./services/habitService";
+import { HabitService } from "./backbone/services/habitService";
 
 // Mock Supabase
 vi.mock("./lib/supabase", () => ({

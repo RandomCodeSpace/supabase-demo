@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { type Habit, HabitService } from "../../services/habitService";
+import { type Habit, HabitService } from "../../backbone/services/habitService";
 import { Button } from "./button";
 import {
 	Drawer,

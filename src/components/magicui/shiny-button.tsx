@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../../backbone/lib/utils";
 
 const animationProps = {
     initial: { "--x": "100%", scale: 0.8 },

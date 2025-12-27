@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { ProjectService } from "../../services/projectService";
+import { ProjectService } from "../../backbone/services/projectService";
 import { Button } from "../ui/button";
 import {
 	Drawer,

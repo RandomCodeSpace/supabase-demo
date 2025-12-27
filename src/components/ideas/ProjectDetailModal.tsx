@@ -7,7 +7,7 @@ import {
 	type Project,
 	type ProjectFeature,
 	ProjectService,
-} from "../../services/projectService";
+} from "../../backbone/services/projectService";
 import { LoadingOverlay } from "../ui/LoadingOverlay";
 import { VoiceInput } from "../ui/VoiceInput";
 import { SwipeableItem } from "../ui/SwipeableItem";

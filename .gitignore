@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.cursorrules
+docs/DEVELOPER_GUIDE.md
+docs/IMPLEMENTATION_CHECKLIST.md

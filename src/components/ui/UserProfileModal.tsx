@@ -3,8 +3,8 @@ import { LogOut, Monitor, Moon, Sun, Trash2, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useToast } from "../../context/ToastContext";
-import { supabase } from "../../lib/supabase";
-import { HabitService } from "../../services/habitService";
+import { supabase } from "../../backbone/lib/supabase";
+import { HabitService } from "../../backbone/services/habitService";
 import { del } from "idb-keyval";
 import { useAuthStore } from "../../stores/useAuthStore";
 

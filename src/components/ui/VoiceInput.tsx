@@ -1,7 +1,7 @@
 import { Mic } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
-import { cn } from "../../lib/utils";
+import { useSpeechRecognition } from "../../backbone/hooks/useSpeechRecognition";
+import { cn } from "../../backbone/lib/utils";
 
 interface VoiceInputProps
 	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {

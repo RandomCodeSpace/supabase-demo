@@ -1,20 +1,21 @@
 import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
-import { LayoutGrid, Lightbulb, RefreshCw, Settings } from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
 import { TodosView } from "./components/TodosView";
+
+import { AppLayout } from "./components/layout/AppLayout";
 import { UserProfileModal } from "./components/ui/UserProfileModal";
 import { OrientationGuard } from "./components/ui/OrientationGuard";
-import { supabase } from "./lib/supabase";
-import { cn } from "./lib/utils";
+import { supabase } from "./backbone/lib/supabase";
 import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
 	const { session, setSession } = useAuthStore();
 	// Active Tab with Persistence
-	const [activeTab, setActiveTabPrivate] = useState<"todos" | "ideas">("todos"); // Default to todos initially
+	const [activeTab, setActiveTabPrivate] = useState<string>("todos");
 
 	// Load saved tab on mount
 	useEffect(() => {
@@ -27,7 +28,7 @@ function App() {
 		});
 	}, []);
 
-	const setActiveTab = (tab: "todos" | "ideas") => {
+	const setActiveTab = (tab: string) => {
 		setActiveTabPrivate(tab);
 		import("idb-keyval").then(({ set }) => {
 			set("activeTab", tab);
@@ -41,7 +42,7 @@ function App() {
 			const { data: { session } } = await supabase.auth.getSession();
 			setSession(session);
 			if (session) {
-				import("./services/syncService").then(({ SyncService }) => {
+				import("./backbone/services/syncService").then(({ SyncService }) => {
 					SyncService.pullChanges();
 				});
 			}
@@ -54,7 +55,7 @@ function App() {
 			setSession(session);
 			if (session) {
 				// User signed in or session refreshed
-				import("./services/syncService").then(({ SyncService }) => {
+				import("./backbone/services/syncService").then(({ SyncService }) => {
 					SyncService.pullChanges();
 				});
 			}
@@ -63,13 +64,13 @@ function App() {
 		// Smart Sync Listeners
 		const onFocus = () => {
 			if (useAuthStore.getState().session) {
-				import("./services/syncService").then(({ SyncService }) => {
+				import("./backbone/services/syncService").then(({ SyncService }) => {
 					SyncService.pullChanges();
 				});
 			}
 		};
 		const onOnline = () => {
-			import("./services/syncService").then(({ SyncService }) => {
+			import("./backbone/services/syncService").then(({ SyncService }) => {
 				SyncService.pushChanges();
 				SyncService.pullChanges();
 			});
@@ -104,64 +105,22 @@ function App() {
 
 	if (!session) return <Auth />;
 
+	const handleTabChange = (tab: string) => {
+		if (tab === "profile") {
+			setShowProfileModal(true);
+		} else {
+			setActiveTab(tab);
+		}
+	};
+
 	return (
-		<div {...bind()} className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300 touch-pan-y">
+		<div {...bind()} className="min-h-screen bg-zen-bg transition-colors duration-300 touch-pan-y">
 			<OrientationGuard />
 
-			{/* Global Refresh Button (Top-Left) */}
-			<button
-				onClick={() => window.location.reload()}
-				className="absolute top-6 left-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-white shadow-sm border border-black/5 dark:bg-white/5 dark:border-white/5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
-			>
-				<RefreshCw size={20} />
-			</button>
-
-			{/* Global Settings Button (Top-Right) */}
-			<button
-				onClick={() => setShowProfileModal(true)}
-				className="absolute top-6 right-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-white shadow-sm border border-black/5 dark:bg-white/5 dark:border-white/5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
-			>
-				<Settings size={20} />
-			</button>
-
-			<main className="px-4 min-h-screen">
-				{activeTab === "ideas" ? (
-					<IdeasView />
-				) : (
-					<TodosView />
-				)}
-			</main>
-
-			{/* Tab Navigation Bar */}
-			<div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-6 pointer-events-none">
-				<div className="glass-3d bg-zen-surface/90 rounded-2xl p-1.5 flex gap-1 pointer-events-auto backdrop-blur-2xl shadow-2xl">
-					<button
-						onClick={() => setActiveTab("ideas")}
-						className={cn(
-							"flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300",
-							activeTab === "ideas"
-								? "bg-white shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-0 dark:shadow-inner text-zen-text"
-								: "text-zen-text-muted hover:text-zen-text hover:bg-black/5 dark:hover:bg-white/5",
-						)}
-					>
-						<Lightbulb size={20} />
-						<span>Ideas</span>
-					</button>
-					<div className="w-px bg-black/5 dark:bg-white/10 my-2" />
-					<button
-						onClick={() => setActiveTab("todos")}
-						className={cn(
-							"flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300",
-							activeTab === "todos"
-								? "bg-white shadow-sm ring-1 ring-black/5 dark:bg-white/10 dark:ring-0 dark:shadow-inner text-zen-text"
-								: "text-zen-text-muted hover:text-zen-text hover:bg-black/5 dark:hover:bg-white/5",
-						)}
-					>
-						<LayoutGrid size={20} />
-						<span>Todos</span>
-					</button>
-				</div>
-			</div>
+			<AppLayout activeTab={activeTab} onTabChange={handleTabChange}>
+				{activeTab === "todos" && <TodosView />}
+				{activeTab === "ideas" && <IdeasView />}
+			</AppLayout>
 
 			{/* Global Profile Modal */}
 			<AnimatePresence>

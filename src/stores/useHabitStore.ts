@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type Habit, type HabitLog, HabitService } from "../services/habitService";
+import { type Habit, type HabitLog, HabitService } from "../backbone/services/habitService";
 
 interface HabitState {
     habits: Habit[];

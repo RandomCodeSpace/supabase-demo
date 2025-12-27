@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
 import {
 	type Habit,
-} from "../services/habitService";
+} from "../backbone/services/habitService";
 import { useHabitStore } from "../stores/useHabitStore";
 import { AddHabitModal } from "./ui/AddHabitModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
@@ -91,7 +91,7 @@ export function TodosView() {
 	});
 
 	return (
-		<div {...bind()} className="pb-24 pt-8 min-h-screen relative">
+		<div {...bind()} className="pb-24 min-h-full relative">
 			{loading && <LoadingOverlay message="Loading todos..." />}
 
 			{/* Header with Progress Ring */}
@@ -157,7 +157,7 @@ export function TodosView() {
 			</div>
 
 			{/* Floating Action Button - Shiny Magic */}
-			<div className="fixed bottom-32 right-8 z-40">
+			<div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
 				<ShinyButton
 					onClick={() => setShowAddModal(true)}
 					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center bg-zen-btn-primary shadow-lg shadow-green-500/20 glass-3d"

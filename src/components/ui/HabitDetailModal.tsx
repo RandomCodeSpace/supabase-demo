@@ -5,7 +5,7 @@ import {
 	type Habit,
 	type HabitNote,
 	HabitService,
-} from "../../services/habitService";
+} from "../../backbone/services/habitService";
 import { useToast } from "../../context/ToastContext";
 
 import { LoadingOverlay } from "./LoadingOverlay";

@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { type Todo, TodoService } from "../services/todos";
+import { type Todo, TodoService } from "../backbone/services/todos";
 import { useToast } from "../context/ToastContext";
 
 export function TodoList() {
@@ -59,7 +59,7 @@ export function TodoList() {
 	};
 
 	const handleLogout = async () => {
-		const { supabase } = await import("../lib/supabase");
+		const { supabase } = await import("../backbone/lib/supabase");
 		supabase.auth.signOut();
 	};
 

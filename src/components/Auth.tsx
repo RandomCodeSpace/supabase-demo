@@ -1,6 +1,6 @@
 import { Github } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../backbone/lib/supabase";
 import { useToast } from "../context/ToastContext";
 import { Logo } from "./ui/Logo";
 import { ZenCard } from "./ui/ZenCard";

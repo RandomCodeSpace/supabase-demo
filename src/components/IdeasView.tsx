@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
 import { ShinyButton } from "./magicui/shiny-button";
 import { BlurFade } from "./magicui/blur-fade";
-import { type Project, ProjectService } from "../services/projectService";
+import { type Project, ProjectService } from "../backbone/services/projectService";
 import { AddProjectModal } from "./ideas/AddProjectModal";
 // import { ProjectCard } from "./ideas/ProjectCard";
 import { ProjectDetailModal } from "./ideas/ProjectDetailModal";
