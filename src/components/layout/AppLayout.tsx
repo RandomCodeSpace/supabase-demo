@@ -2,6 +2,7 @@
 import { Sidebar } from "./Sidebar";
 import { NAV_ITEMS } from "./nav-config";
 import { cn } from "../../backbone/lib/utils";
+import { SyncControls } from "../ui/SyncControls";
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -22,6 +23,9 @@ export function AppLayout({ children, activeTab, onTabChange }: AppLayoutProps) 
                         {children}
                     </div>
                 </div>
+
+                {/* Sync Controls (Top Right) */}
+                <SyncControls />
 
                 {/* Mobile Bottom Nav (Floating Pill) */}
                 <div className="md:hidden fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
