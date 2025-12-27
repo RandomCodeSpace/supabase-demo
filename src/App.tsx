@@ -35,19 +35,54 @@ function App() {
 	};
 	const [showProfileModal, setShowProfileModal] = useState(false);
 
-	// Auth & Initial Load
+	// Auth & Initial Load & Sync
 	useEffect(() => {
-		supabase.auth.getSession().then(({ data: { session } }) => {
+		const init = async () => {
+			const { data: { session } } = await supabase.auth.getSession();
 			setSession(session);
-		});
+			if (session) {
+				import("./services/syncService").then(({ SyncService }) => {
+					SyncService.pullChanges();
+				});
+			}
+		};
+		init();
 
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session);
+			if (session) {
+				// User signed in or session refreshed
+				import("./services/syncService").then(({ SyncService }) => {
+					SyncService.pullChanges();
+				});
+			}
 		});
 
-		return () => subscription.unsubscribe();
+		// Smart Sync Listeners
+		const onFocus = () => {
+			if (useAuthStore.getState().session) {
+				import("./services/syncService").then(({ SyncService }) => {
+					SyncService.pullChanges();
+				});
+			}
+		};
+		const onOnline = () => {
+			import("./services/syncService").then(({ SyncService }) => {
+				SyncService.pushChanges();
+				SyncService.pullChanges();
+			});
+		};
+
+		window.addEventListener("focus", onFocus);
+		window.addEventListener("online", onOnline);
+
+		return () => {
+			subscription.unsubscribe();
+			window.removeEventListener("focus", onFocus);
+			window.removeEventListener("online", onOnline);
+		};
 	}, []);
 
 	// Gesture Navigation

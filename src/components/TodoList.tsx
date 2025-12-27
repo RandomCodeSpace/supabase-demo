@@ -41,7 +41,7 @@ export function TodoList() {
 	const toggleComplete = async (todo: Todo) => {
 		try {
 			const updated = await TodoService.updateTodo(todo.id, {
-				is_complete: !todo.is_complete,
+				completed: !todo.completed,
 			});
 			setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
 		} catch (error) {
@@ -49,7 +49,7 @@ export function TodoList() {
 		}
 	};
 
-	const handleDelete = async (id: number) => {
+	const handleDelete = async (id: string) => {
 		try {
 			await TodoService.deleteTodo(id);
 			setTodos(todos.filter((t) => t.id !== id));
@@ -127,17 +127,17 @@ export function TodoList() {
 							gap: "1rem",
 							padding: "1rem",
 							borderBottom: "1px solid rgba(255,255,255,0.1)",
-							opacity: todo.is_complete ? 0.5 : 1,
-							textDecoration: todo.is_complete ? "line-through" : "none",
+							opacity: todo.completed ? 0.5 : 1,
+							textDecoration: todo.completed ? "line-through" : "none",
 						}}
 					>
 						<input
 							type="checkbox"
-							checked={todo.is_complete}
+							checked={todo.completed}
 							onChange={() => toggleComplete(todo)}
 							style={{ transform: "scale(1.2)", cursor: "pointer" }}
 						/>
-						<span style={{ flex: 1 }}>{todo.task}</span>
+						<span style={{ flex: 1 }}>{todo.text}</span>
 						<button
 							type="button"
 							onClick={() => handleDelete(todo.id)}
