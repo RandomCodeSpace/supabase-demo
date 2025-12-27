@@ -67,7 +67,7 @@ function App() {
 			{/* Global Refresh Button (Top-Left) */}
 			<button
 				onClick={() => window.location.reload()}
-				className="absolute top-6 left-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
+				className="absolute top-6 left-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-white shadow-sm border border-black/5 dark:bg-white/5 dark:border-white/5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
 			>
 				<RefreshCw size={20} />
 			</button>
@@ -75,7 +75,7 @@ function App() {
 			{/* Global Settings Button (Top-Right) */}
 			<button
 				onClick={() => setShowProfileModal(true)}
-				className="absolute top-6 right-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
+				className="absolute top-6 right-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-white shadow-sm border border-black/5 dark:bg-white/5 dark:border-white/5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
 			>
 				<Settings size={20} />
 			</button>

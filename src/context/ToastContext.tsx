@@ -8,6 +8,7 @@ import {
 interface ToastContextType {
 	success: (message: string) => void;
 	error: (message: string) => void;
+	confirm: (message: string, onConfirm: () => void) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -26,9 +27,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 	const success = (message: string) => addToast(message, "success");
 	const error = (message: string) => addToast(message, "error");
+	const confirm = (message: string, onConfirm: () => void) => {
+		const id = Math.random().toString(36).substring(7);
+		setToasts((prev) => [...prev, { id, message, type: "confirmation", onConfirm }]);
+	};
 
 	return (
-		<ToastContext.Provider value={{ success, error }}>
+		<ToastContext.Provider value={{ success, error, confirm }}>
 			{children}
 			<ToastContainer
 				toasts={toasts.map((t) => ({ ...t, onClose: removeToast }))}

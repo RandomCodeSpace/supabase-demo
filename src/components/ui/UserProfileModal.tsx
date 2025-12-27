@@ -14,7 +14,7 @@ interface UserProfileModalProps {
 export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	const { theme, setTheme } = useTheme();
 	const [loading, setLoading] = useState(false);
-	const { success, error } = useToast();
+	const { success, error, confirm } = useToast();
 
 	const handleSignOut = async () => {
 		try {
@@ -29,26 +29,26 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 		}
 	};
 
-	const handleDeleteAccount = async () => {
-		const confirmed = window.confirm(
-			"DANGER: This will permanently delete ALL your habits, logs, and notes. This cannot be undone. Are you sure?",
+	const handleDeleteAccount = () => {
+		confirm(
+			"DANGER: This will permanently delete ALL your habits, logs, and notes.",
+			async () => {
+				try {
+					setLoading(true);
+					// 1. Delete all user data (Cascading delete from habits)
+					await HabitService.deleteAllHabits();
+					// 2. Sign out
+					await supabase.auth.signOut();
+					success("Account reset complete. All data deleted.");
+					onClose();
+				} catch (err) {
+					console.error(err);
+					error("Failed to delete account data");
+				} finally {
+					setLoading(false);
+				}
+			}
 		);
-		if (!confirmed) return;
-
-		try {
-			setLoading(true);
-			// 1. Delete all user data (Cascading delete from habits)
-			await HabitService.deleteAllHabits();
-			// 2. Sign out
-			await supabase.auth.signOut();
-			success("Account reset complete. All data deleted.");
-			onClose();
-		} catch (err) {
-			console.error(err);
-			error("Failed to delete account data");
-		} finally {
-			setLoading(false);
-		}
 	};
 
 	return (
