@@ -90,6 +90,12 @@
 }
 
 @layer base {
+
+	html,
+	body {
+		@apply h-full w-full overflow-hidden overscroll-none;
+	}
+
 	body {
 		@apply bg-zen-bg text-zen-text antialiased font-sans;
 		font-feature-settings:
