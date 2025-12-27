@@ -1,50 +1,89 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap");
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
 	:root {
-		/* Light Mode ("Ceramic White") */
-		--zen-bg: #d4d4d8;
-		/* Zinc-300: Significantly darker for reduced brightness */
-		--zen-surface: #f4f4f5;
-		/* Zinc-100: Distinct contrast from background */
-		--zen-primary: #15803d;
-		/* Green-700: Strong green */
-		--zen-accent: #22c55e;
-		--zen-error: #b91c1c;
-		--zen-text: #09090b;
-		/* Zinc-950 */
-		--zen-text-muted: #3f3f46;
-		/* Zinc-700 */
-		--zen-btn-primary: #15803d;
+		--background: 240 5% 96%;
+		/* Softer off-white */
+		--foreground: 240 10% 3.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 240 10% 3.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 240 10% 3.9%;
+		--primary: 142 76% 36%;
+		/* Zen Green */
+		--primary-foreground: 355.7 100% 97.3%;
+		--secondary: 240 4.8% 90%;
+		/* Darker for input contrast against off-white bg */
+		--secondary-foreground: 240 5.9% 10%;
+		--muted: 240 4.8% 95.9%;
+		--muted-foreground: 240 3.8% 46.1%;
+		--accent: 240 4.8% 95.9%;
+		--accent-foreground: 240 5.9% 10%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 240 5.9% 90%;
+		--input: 240 5.9% 90%;
+		--ring: 142 76% 36%;
+		--radius: 1rem;
 	}
 
 	.dark {
-		/* Dark Mode ("Deep Zen") */
-		--zen-bg: #000000;
-		--zen-surface: #09090b;
-		--zen-primary: #22c55e;
-		--zen-accent: #4ade80;
-		--zen-error: #ef4444;
-		--zen-text: #fafafa;
-		--zen-text-muted: #a1a1aa;
-		--zen-btn-primary: #22c55e;
+		--background: 240 10% 3.9%;
+		--foreground: 0 0% 98%;
+		--card: 240 10% 3.9%;
+		--card-foreground: 0 0% 98%;
+		--popover: 240 10% 3.9%;
+		--popover-foreground: 0 0% 98%;
+		--primary: 142 76% 36%;
+		--primary-foreground: 355.7 100% 97.3%;
+		--secondary: 240 3.7% 15.9%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 240 3.7% 15.9%;
+		--muted-foreground: 240 5% 64.9%;
+		--accent: 240 3.7% 15.9%;
+		--accent-foreground: 0 0% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 240 3.7% 15.9%;
+		--input: 240 3.7% 15.9%;
+		--ring: 142 76% 36%;
 	}
 }
 
 @theme {
-	--font-sans: "Outfit", sans-serif;
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
 
-	--color-zen-bg: var(--zen-bg);
-	--color-zen-surface: var(--zen-surface);
-	--color-zen-primary: var(--zen-primary);
-	--color-zen-accent: var(--zen-accent);
-	--color-zen-error: var(--zen-error);
-
-	--color-zen-text: var(--zen-text);
-	--color-zen-text-muted: var(--zen-text-muted);
-
-	--color-zen-btn-primary: var(--zen-btn-primary);
+	/* Legacy Zen mappings to prevent breaking changes */
+	--color-zen-bg: hsl(var(--background));
+	--color-zen-surface: hsl(var(--card));
+	--color-zen-primary: hsl(var(--primary));
+	--color-zen-text: hsl(var(--foreground));
+	--color-zen-text-muted: hsl(var(--muted-foreground));
+	--color-zen-btn-primary: hsl(var(--primary));
 }
 
 @layer base {
@@ -57,24 +96,35 @@
 }
 
 @layer utilities {
-	/* Base Glass */
+
+	/* Base Glass - Updated for better Light Mode support */
 	.glass {
-		@apply bg-zen-surface/70 backdrop-blur-xl border border-black/20 dark:border-white/10 shadow-sm transition-all duration-300;
+		@apply bg-white/70 dark:bg-zen-surface/70 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm transition-all duration-300;
 	}
 
-	/* 3D Pop-out Glass */
+	/* 3D Pop-out Glass - Adjusted for Light Mode depth */
 	.glass-3d {
-		@apply bg-zen-surface/80 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-2xl shadow-black/20 dark:shadow-black/80;
+		@apply bg-white/80 dark:bg-zen-surface/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/80;
 		/* Inner subtle highlight for 3D edge */
 		box-shadow:
-			0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+			0 0 0 1px rgba(255, 255, 255, 0.5) inset,
 			/* Inner bezel */
-			0 20px 25px -5px rgba(0, 0, 0, 0.1),
-			0 10px 10px -5px rgba(0, 0, 0, 0.04);
+			0 10px 20px -5px rgba(0, 0, 0, 0.05),
+			0 5px 10px -5px rgba(0, 0, 0, 0.02);
 	}
 
 	/* Glow effect helper */
 	.glow-behind {
 		@apply absolute -inset-4 rounded-3xl blur-2xl opacity-20 bg-zen-primary z-0 pointer-events-none;
+	}
+}
+
+@theme {
+	--animate-border-beam: border-beam calc(var(--duration)*1s) infinite linear;
+
+	@keyframes border-beam {
+		100% {
+			offset-distance: 100%;
+		}
 	}
 }

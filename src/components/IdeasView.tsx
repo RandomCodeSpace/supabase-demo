@@ -1,7 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Lightbulb, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
+import { ShinyButton } from "./magicui/shiny-button";
+import { BlurFade } from "./magicui/blur-fade";
 import { type Project, ProjectService } from "../services/projectService";
 import { AddProjectModal } from "./ideas/AddProjectModal";
 import { ProjectCard } from "./ideas/ProjectCard";
@@ -58,14 +60,15 @@ export function IdeasView() {
 			{/* Projects Grid */}
 			<div className="grid grid-cols-1 gap-4">
 				<AnimatePresence>
-					{projects.map((project) => (
-						<ProjectCard
-							key={project.id}
-							name={project.name}
-							description={project.description}
-							featureCount={project.featureCount}
-							onClick={() => setSelectedProject(project)}
-						/>
+					{projects.map((project, idx) => (
+						<BlurFade key={project.id} delay={0.04 * idx} inView className="w-full">
+							<ProjectCard
+								name={project.name}
+								description={project.description}
+								featureCount={project.featureCount}
+								onClick={() => setSelectedProject(project)}
+							/>
+						</BlurFade>
 					))}
 				</AnimatePresence>
 
@@ -78,14 +81,14 @@ export function IdeasView() {
 			</div>
 
 			{/* FAB */}
-			<motion.button
-				whileHover={{ scale: 1.1 }}
-				whileTap={{ scale: 0.9 }}
-				onClick={() => setShowAddModal(true)}
-				className="fixed bottom-24 right-8 w-16 h-16 !bg-cyan-600 rounded-full flex items-center justify-center shadow-lg shadow-cyan-600/20 z-40 text-white glass-3d"
-			>
-				<Plus size={32} />
-			</motion.button>
+			<div className="fixed bottom-24 right-8 z-40">
+				<ShinyButton
+					onClick={() => setShowAddModal(true)}
+					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center !bg-cyan-600 shadow-lg shadow-cyan-600/20 glass-3d"
+				>
+					<Plus size={32} className="text-white" />
+				</ShinyButton>
+			</div>
 
 			{/* Modals */}
 			<AnimatePresence>

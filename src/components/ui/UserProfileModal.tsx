@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { LogOut, Monitor, Moon, Sun, Trash2, User, X } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useState } from "react";
-import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../lib/supabase";
 import { HabitService } from "../../services/habitService";
@@ -93,11 +93,10 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 										onClick={() => setTheme(t)}
 										className={`
                                         flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all
-                                        ${
-																					theme === t
-																						? "bg-white text-black shadow-sm"
-																						: "text-zen-text-muted hover:text-zen-text"
-																				}
+                                        ${theme === t
+												? "bg-white text-black shadow-sm"
+												: "text-zen-text-muted hover:text-zen-text"
+											}
 `}
 									>
 										{t === "light" && <Sun size={14} />}

@@ -1,12 +1,11 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Settings } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
 import {
 	type Habit,
-	type HabitLog,
-	HabitService,
 } from "../services/habitService";
+import { useHabitStore } from "../stores/useHabitStore";
 import { AddHabitModal } from "./ui/AddHabitModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
@@ -14,68 +13,38 @@ import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
 import { ProgressRing } from "./ui/ProgressRing";
 import { SwipeableHabit } from "./ui/SwipeableHabit";
-import { UserProfileModal } from "./ui/UserProfileModal";
+import { ShinyButton } from "./magicui/shiny-button";
+import { BlurFade } from "./magicui/blur-fade";
 
-interface TodosViewProps {
-	userEmail: string | undefined;
-}
 
-export function TodosView({ userEmail }: TodosViewProps) {
-	const [habits, setHabits] = useState<Habit[]>([]);
-	const [logs, setLogs] = useState<HabitLog[]>([]);
+
+export function TodosView() {
+	const {
+		habits,
+		logs,
+		todayProgress,
+		isLoading: loading,
+		fetchData,
+		addHabit: addHabitToStore,
+		toggleHabit,
+		deleteHabit: deleteHabitFromStore
+	} = useHabitStore();
+
 	const [showAddModal, setShowAddModal] = useState(false);
-	const [showProfileModal, setShowProfileModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 	const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
-	const [todayProgress, setTodayProgress] = useState(0);
-	const [loading, setLoading] = useState(true);
 
 	const { success, error: toastError } = useToast();
-
-	const fetchData = useCallback(async () => {
-		try {
-			setLoading(true);
-			const [fetchedHabits, fetchedLogs] = await Promise.all([
-				HabitService.fetchHabits(),
-				HabitService.fetchTodayLogs(),
-			]);
-			setHabits(fetchedHabits);
-			setLogs(fetchedLogs);
-		} catch (error) {
-			console.error("Error fetching data:", error);
-			toastError("Failed to load data");
-		} finally {
-			setLoading(false);
-		}
-	}, [toastError]);
 
 	// Initial Load
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
 
-	// Calculate Progress when logs/habits change
-	useEffect(() => {
-		if (habits.length === 0) {
-			setTodayProgress(0);
-			return;
-		}
-		const completedCount = logs.filter(
-			(log) => log.status === "completed",
-		).length;
-		setTodayProgress((completedCount / habits.length) * 100);
-	}, [habits, logs]);
-
 	const handleComplete = async (habitId: string) => {
 		try {
-			const result = await HabitService.toggleCompletion(habitId);
-
-			if (result) {
-				setLogs([...logs, result]);
-				success("Todo completed!");
-			} else {
-				setLogs(logs.filter((l) => l.habit_id !== habitId));
-			}
+			await toggleHabit(habitId);
+			success("Status updated");
 		} catch (err) {
 			console.error("Error toggling completion:", err);
 			toastError("Failed to update status");
@@ -89,9 +58,7 @@ export function TodosView({ userEmail }: TodosViewProps) {
 	const confirmDelete = async () => {
 		if (!habitToDelete) return;
 		try {
-			await HabitService.deleteHabit(habitToDelete);
-			setHabits(habits.filter((h) => h.id !== habitToDelete));
-			setLogs(logs.filter((l) => l.habit_id !== habitToDelete));
+			await deleteHabitFromStore(habitToDelete);
 			success("Todo deleted");
 		} catch (err) {
 			console.error("Error deleting habit:", err);
@@ -102,7 +69,7 @@ export function TodosView({ userEmail }: TodosViewProps) {
 	};
 
 	const handleAddHabit = (newHabit: Habit) => {
-		setHabits([newHabit, ...habits]);
+		addHabitToStore(newHabit);
 		success("New todo started");
 	};
 
@@ -112,13 +79,6 @@ export function TodosView({ userEmail }: TodosViewProps) {
 
 			{/* Header with Progress Ring */}
 			<header className="flex flex-col items-center mb-8 space-y-4 relative">
-				<button
-					onClick={() => setShowProfileModal(true)}
-					className="absolute top-0 right-0 p-2 text-zen-text-muted hover:text-zen-text transition-colors"
-				>
-					<Settings size={24} />
-				</button>
-
 				<ProgressRing percentage={todayProgress} size={160} color="#4ade80" />
 				<div className="text-center">
 					<div className="flex items-center justify-center gap-2 mb-1">
@@ -134,38 +94,39 @@ export function TodosView({ userEmail }: TodosViewProps) {
 			{/* Habits List */}
 			<div className="space-y-4">
 				<AnimatePresence>
-					{habits.map((habit) => {
+					{habits.map((habit, idx) => {
 						const isCompleted = logs.some(
 							(l) => l.habit_id === habit.id && l.status === "completed",
 						);
 						return (
-							<SwipeableHabit
-								key={habit.id}
-								isCompleted={isCompleted}
-								color={habit.color}
-								onComplete={() => handleComplete(habit.id)}
-								onDelete={() => handleDelete(habit.id)}
-							>
-								<div
-									className="flex items-center gap-4 cursor-pointer"
-									onClick={() => setSelectedHabit(habit)}
+							<BlurFade key={habit.id} delay={0.04 * idx} inView className="w-full">
+								<SwipeableHabit
+									isCompleted={isCompleted}
+									color={habit.color}
+									onComplete={() => handleComplete(habit.id)}
+									onDelete={() => handleDelete(habit.id)}
 								>
 									<div
-										className="w-3 h-12 rounded-full"
-										style={{ backgroundColor: habit.color }}
-									/>
-									<div>
-										<h3 className="font-bold text-lg text-zen-text">
-											{habit.title}
-										</h3>
-										{habit.description && (
-											<p className="text-sm text-zen-text-muted">
-												{habit.description}
-											</p>
-										)}
+										className="flex items-center gap-4 cursor-pointer"
+										onClick={() => setSelectedHabit(habit)}
+									>
+										<div
+											className="w-3 h-12 rounded-full"
+											style={{ backgroundColor: habit.color }}
+										/>
+										<div>
+											<h3 className="font-bold text-lg text-zen-text">
+												{habit.title}
+											</h3>
+											{habit.description && (
+												<p className="text-sm text-zen-text-muted">
+													{habit.description}
+												</p>
+											)}
+										</div>
 									</div>
-								</div>
-							</SwipeableHabit>
+								</SwipeableHabit>
+							</BlurFade>
 						);
 					})}
 				</AnimatePresence>
@@ -178,15 +139,15 @@ export function TodosView({ userEmail }: TodosViewProps) {
 				)}
 			</div>
 
-			{/* Floating Action Button */}
-			<motion.button
-				whileHover={{ scale: 1.1 }}
-				whileTap={{ scale: 0.9 }}
-				onClick={() => setShowAddModal(true)}
-				className="fixed bottom-32 right-8 w-16 h-16 !bg-zen-btn-primary rounded-full flex items-center justify-center shadow-lg shadow-green-500/20 z-40 text-white glass-3d"
-			>
-				<Plus size={32} />
-			</motion.button>
+			{/* Floating Action Button - Shiny Magic */}
+			<div className="fixed bottom-32 right-8 z-40">
+				<ShinyButton
+					onClick={() => setShowAddModal(true)}
+					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center bg-zen-btn-primary shadow-lg shadow-green-500/20 glass-3d"
+				>
+					<Plus size={32} className="text-white" />
+				</ShinyButton>
+			</div>
 
 			{/* Add Modal */}
 			<AnimatePresence>
@@ -204,16 +165,6 @@ export function TodosView({ userEmail }: TodosViewProps) {
 					<HabitDetailModal
 						habit={selectedHabit}
 						onClose={() => setSelectedHabit(null)}
-					/>
-				)}
-			</AnimatePresence>
-
-			{/* Profile Modal */}
-			<AnimatePresence>
-				{showProfileModal && (
-					<UserProfileModal
-						email={userEmail}
-						onClose={() => setShowProfileModal(false)}
 					/>
 				)}
 			</AnimatePresence>

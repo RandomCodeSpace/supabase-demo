@@ -1,7 +1,14 @@
-import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { ProjectService } from "../../services/projectService";
+import { Button } from "../ui/button";
+import {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+} from "../ui/drawer";
 import { LoadingOverlay } from "../ui/LoadingOverlay";
 import { VoiceInput } from "../ui/VoiceInput";
 
@@ -26,36 +33,31 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 			onClose();
 		} catch (err) {
 			console.error(err);
-			alert("Failed to create project");
+			// alert("Failed to create project");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-			<motion.div
-				initial={{ opacity: 0, y: 50 }}
-				animate={{ opacity: 1, y: 0 }}
-				exit={{ opacity: 0, y: 50 }}
-				className="relative w-full max-w-md"
-			>
-				{loading && <LoadingOverlay message="Creating project..." />}
-				<div className="glow-behind bg-cyan-500/30" />
-				<div className="glass-3d rounded-3xl p-6 relative z-10">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-xl font-bold text-zen-text">New Idea</h2>
-						<button
-							onClick={onClose}
-							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
-						>
-							<X size={20} />
-						</button>
-					</div>
+		<Drawer open={true} onOpenChange={(open) => !open && onClose()}>
+			<DrawerContent className="max-w-md mx-auto">
+				<div className="p-6">
+					<DrawerHeader className="p-0 mb-6 flex justify-between items-center">
+						<DrawerTitle className="text-xl font-bold text-foreground">
+							New Idea
+						</DrawerTitle>
+						<DrawerClose asChild>
+							<Button variant="ghost" size="icon" className="rounded-full">
+								<X size={20} />
+							</Button>
+						</DrawerClose>
+					</DrawerHeader>
 
 					<form onSubmit={handleSubmit} className="space-y-4">
+						{loading && <LoadingOverlay message="Conceptualizing..." />}
 						<div>
-							<label className="block text-sm font-medium text-zen-text-muted mb-1">
+							<label className="block text-sm font-medium text-muted-foreground mb-1">
 								Project Name
 							</label>
 							<VoiceInput
@@ -63,11 +65,17 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 								onValueChange={setName}
 								placeholder="e.g. AI Fitness App"
 								rows={1}
+								className="bg-secondary/50 border-transparent focus:border-primary"
 								style={{ minHeight: "3rem" }}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") {
+										e.preventDefault();
+									}
+								}}
 							/>
 						</div>
 						<div>
-							<label className="block text-sm font-medium text-zen-text-muted mb-1">
+							<label className="block text-sm font-medium text-muted-foreground mb-1">
 								Description / Goal
 							</label>
 							<VoiceInput
@@ -75,19 +83,21 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 								onValueChange={setDescription}
 								placeholder="What problem does it solve?"
 								rows={3}
+								className="bg-secondary/50 border-transparent focus:border-primary"
 							/>
 						</div>
 
-						<button
+						<Button
 							type="submit"
 							disabled={!name || loading}
-							className="w-full bg-cyan-600 text-white font-bold py-4 rounded-xl mt-4 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-cyan-500/20"
+							className="w-full text-lg h-14 rounded-2xl font-bold mt-4"
+							variant="default"
 						>
 							{loading ? "Creating..." : "Start Brainstorming"}
-						</button>
+						</Button>
 					</form>
 				</div>
-			</motion.div>
-		</div>
+			</DrawerContent>
+		</Drawer>
 	);
 }

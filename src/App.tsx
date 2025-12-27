@@ -1,15 +1,18 @@
-import type { Session } from "@supabase/supabase-js";
-import { LayoutGrid, Lightbulb } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { LayoutGrid, Lightbulb, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
 import { TodosView } from "./components/TodosView";
+import { UserProfileModal } from "./components/ui/UserProfileModal";
 import { supabase } from "./lib/supabase";
 import { cn } from "./lib/utils";
+import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
-	const [session, setSession] = useState<Session | null>(null);
+	const { session, setSession } = useAuthStore();
 	const [activeTab, setActiveTab] = useState<"ideas" | "todos">("ideas");
+	const [showProfileModal, setShowProfileModal] = useState(false);
 
 	// Auth & Initial Load
 	useEffect(() => {
@@ -30,11 +33,19 @@ function App() {
 
 	return (
 		<div className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300">
+			{/* Global Settings Button */}
+			<button
+				onClick={() => setShowProfileModal(true)}
+				className="absolute top-6 right-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
+			>
+				<Settings size={20} />
+			</button>
+
 			<main className="px-4 min-h-screen">
 				{activeTab === "ideas" ? (
 					<IdeasView />
 				) : (
-					<TodosView userEmail={session.user.email} />
+					<TodosView />
 				)}
 			</main>
 
@@ -68,6 +79,16 @@ function App() {
 					</button>
 				</div>
 			</div>
+
+			{/* Global Profile Modal */}
+			<AnimatePresence>
+				{showProfileModal && (
+					<UserProfileModal
+						email={session.user.email}
+						onClose={() => setShowProfileModal(false)}
+					/>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 }

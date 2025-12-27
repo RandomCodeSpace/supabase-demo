@@ -1,7 +1,14 @@
-import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { type Habit, HabitService } from "../../services/habitService";
+import { Button } from "./button";
+import {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+} from "./drawer";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
 
@@ -31,36 +38,31 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 			onClose();
 		} catch (error) {
 			console.error(error);
-			alert("Failed to add habit");
+			// alert("Failed to add habit");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-			<motion.div
-				initial={{ opacity: 0, y: 50 }}
-				animate={{ opacity: 1, y: 0 }}
-				exit={{ opacity: 0, y: 50 }}
-				className="relative w-full max-w-md"
-			>
-				{loading && <LoadingOverlay message="Starting todo..." />}
-				<div className="glow-behind bg-zen-primary/30" />
-				<div className="glass-3d rounded-3xl p-6 relative z-10">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-xl font-bold text-zen-text">New Todo</h2>
-						<button
-							onClick={onClose}
-							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
-						>
-							<X size={20} />
-						</button>
-					</div>
+		<Drawer open={true} onOpenChange={(open) => !open && onClose()}>
+			<DrawerContent className="max-w-md mx-auto">
+				<div className="p-6">
+					<DrawerHeader className="p-0 mb-6 flex justify-between items-center">
+						<DrawerTitle className="text-xl font-bold text-foreground">
+							New Todo
+						</DrawerTitle>
+						<DrawerClose asChild>
+							<Button variant="ghost" size="icon" className="rounded-full">
+								<X size={20} />
+							</Button>
+						</DrawerClose>
+					</DrawerHeader>
 
 					<form onSubmit={handleSubmit} className="space-y-4">
+						{loading && <LoadingOverlay message="Starting todo..." />}
 						<div>
-							<label className="block text-sm font-medium text-zen-text-muted mb-1">
+							<label className="block text-sm font-medium text-muted-foreground mb-1">
 								Title
 							</label>
 							<VoiceInput
@@ -68,17 +70,17 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 								onValueChange={setTitle}
 								placeholder="e.g. Morning Meditation"
 								rows={1}
+								className="bg-secondary/50 border-transparent focus:border-primary"
 								style={{ minHeight: "3rem" }}
 								onKeyDown={(e) => {
 									if (e.key === "Enter") {
 										e.preventDefault();
-										// Optional: focus description or submit
 									}
 								}}
 							/>
 						</div>
 						<div>
-							<label className="block text-sm font-medium text-zen-text-muted mb-1">
+							<label className="block text-sm font-medium text-muted-foreground mb-1">
 								Description (Optional)
 							</label>
 							<VoiceInput
@@ -86,19 +88,21 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 								onValueChange={setDescription}
 								placeholder="What is this todo about?"
 								rows={3}
+								className="bg-secondary/50 border-transparent focus:border-primary"
 							/>
 						</div>
 
-						<button
+						<Button
 							type="submit"
 							disabled={!title || loading}
-							className="w-full bg-zen-primary text-black font-bold py-4 rounded-xl mt-4 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+							className="w-full text-lg h-14 rounded-2xl font-bold mt-4"
+							variant="default" // This will use our primary color
 						>
 							{loading ? "Creating..." : "Start Todo"}
-						</button>
+						</Button>
 					</form>
 				</div>
-			</motion.div>
-		</div>
+			</DrawerContent>
+		</Drawer>
 	);
 }
