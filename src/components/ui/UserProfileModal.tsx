@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../backbone/lib/supabase";
 import { HabitService } from "../../backbone/services/habitService";
-import { del } from "idb-keyval";
+import { del, clear } from "idb-keyval";
 import { useAuthStore } from "../../stores/useAuthStore";
 
 interface UserProfileModalProps {
@@ -16,30 +16,27 @@ interface UserProfileModalProps {
 export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	const { theme, setTheme } = useTheme();
 	const [loading, setLoading] = useState(false);
-	const { success, error, confirm } = useToast();
+	const { success, error } = useToast(); // Removed 'confirm' from useToast
 	const { setSession } = useAuthStore();
+
+	// Local state for blocking confirmation modal
+	const [confirmation, setConfirmation] = useState<{
+		title: string;
+		message: string;
+		action: () => Promise<void>;
+		isDestructive?: boolean;
+	} | null>(null);
 
 	const handleSignOut = async () => {
 		try {
 			setLoading(true);
-			// 1. Force React State Update IMMEDIATELY (Fixes PWA UI Lag)
 			setSession(null);
-
-			// 2. Perform Backend Cleanup
 			await supabase.auth.signOut();
-
-			// 3. Local Cleanup (IndexedDB)
-			// Supabase handled its own key via the storage adapter, but we can be explicit if we want
-			// We no longer use localStorage for tokens, so we can skip removeItem calls or just clear IDB if needed.
-			// Actually, supabase.auth.signOut() clears its own storage adapter entry.
-			// But if we want to be paranoid:
 			await del("sb-access-token");
 			await del("sb-refresh-token");
-
 			success("Signed out successfully");
 			onClose();
 		} catch (_err) {
-			// Even if backend fails, UI is already logged out via setSession(null)
 			error("Signed out (offline mode)");
 			setSession(null);
 			onClose();
@@ -49,16 +46,17 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	};
 
 	const handleDeleteAccount = () => {
-		confirm(
-			"DANGER: This will permanently delete ALL your habits, logs, and notes.",
-			async () => {
+		// Trigger blocking modal
+		setConfirmation({
+			title: "Clear Data & Logout?",
+			message: "DANGER: This will permanently delete ALL your habits, logs, and notes locally. If synced, they remain on the server.",
+			isDestructive: true,
+			action: async () => {
 				try {
 					setLoading(true);
-					// 1. Delete all user data (Cascading delete from habits)
 					await HabitService.deleteAllHabits();
-					// 2. Sign out
 					await supabase.auth.signOut();
-					success("Account reset complete. All data deleted.");
+					success("Account reset complete.");
 					onClose();
 				} catch (err) {
 					console.error(err);
@@ -67,21 +65,71 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 					setLoading(false);
 				}
 			}
-		);
+		});
+	};
+
+	const handleEmergencyReset = () => {
+		setConfirmation({
+			title: "Emergency Reset?",
+			message: "Fix Corruption: This will forcibly delete your local database and reload the app. Any data ALREADY SYNCED to the server is safe. Only unsynced local changes will be lost.",
+			isDestructive: true,
+			action: async () => {
+				await clear();
+				const { db } = await import("../../backbone/lib/db");
+				await db.delete();
+				localStorage.clear();
+				window.location.reload();
+			}
+		});
 	};
 
 	return (
 		<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+			{/* Blocking Confirmation Overlay */}
+			{confirmation && (
+				<div className="fixed inset-0 z-[101] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="w-full max-w-xs bg-white dark:bg-zen-surface rounded-2xl p-6 shadow-2xl border border-red-500/20"
+					>
+						<h3 className="text-lg font-bold text-red-500 mb-2">{confirmation.title}</h3>
+						<p className="text-sm text-zen-text-muted mb-6 loading-relaxed">
+							{confirmation.message}
+						</p>
+						<div className="flex gap-3 justify-end">
+							<button
+								onClick={() => setConfirmation(null)}
+								className="px-4 py-2 text-sm font-medium text-zen-text-muted hover:text-zen-text transition-colors"
+							>
+								Cancel
+							</button>
+							<button
+								onClick={async () => {
+									// Execute action and close confirmation (but keep parent loading if needed)
+									// For now, we assume action handles its own loading or simple execution
+									await confirmation.action();
+									setConfirmation(null);
+								}}
+								className="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl shadow-lg active:scale-95 transition-all"
+							>
+								Confirm
+							</button>
+						</div>
+					</motion.div>
+				</div>
+			)}
+
 			<motion.div
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				exit={{ opacity: 0, scale: 0.9 }}
-				className="relative w-full max-w-sm"
+				className="relative w-full max-w-sm max-h-[90vh] flex flex-col"
 			>
 				<div className="glow-behind bg-zen-text/10" />
-				<div className="glass-3d rounded-3xl overflow-hidden relative z-10">
+				<div className="glass-3d rounded-3xl overflow-hidden relative z-10 flex flex-col max-h-full">
 					{/* Header */}
-					<div className="p-6 border-b border-black/5 dark:border-white/5 flex justify-between items-center">
+					<div className="p-6 border-b border-black/5 dark:border-white/5 flex justify-between items-center shrink-0">
 						<div className="flex items-center gap-3">
 							<div className="p-2 bg-black/5 dark:bg-white/5 rounded-full">
 								<User size={20} className="text-zen-primary" />
@@ -93,14 +141,15 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 						</div>
 						<button
 							onClick={onClose}
-							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+							disabled={!!confirmation} // Disable close if confirming
+							className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
 						>
 							<X size={20} />
 						</button>
 					</div>
 
 					{/* Actions */}
-					<div className="p-6 space-y-4">
+					<div className="p-6 space-y-4 overflow-y-auto custom-scrollbar">
 						<div>
 							<label className="block text-xs font-semibold text-zen-text-muted uppercase tracking-wider mb-2">
 								Appearance
@@ -110,12 +159,14 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 									<button
 										key={t}
 										onClick={() => setTheme(t)}
+										disabled={!!confirmation}
 										className={`
                                         flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all
                                         ${theme === t
 												? "bg-white text-black shadow-sm"
 												: "text-zen-text-muted hover:text-zen-text"
 											}
+                                        disabled:opacity-50
 `}
 									>
 										{t === "light" && <Sun size={14} />}
@@ -129,12 +180,8 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 						<button
 							type="button"
 							onClick={handleSignOut}
-							// Add PointerUp for better mobile response if click is intercepted
-							onPointerUp={() => {
-								// visual feedback or fallback
-							}}
-							disabled={loading}
-							className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group"
+							disabled={loading || !!confirmation}
+							className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group disabled:opacity-50"
 						>
 							<span className="text-zen-text font-medium">Sign Out</span>
 							<LogOut
@@ -143,23 +190,32 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 							/>
 						</button>
 
-						<div className="pt-4 border-t border-black/5 dark:border-white/5">
+						<div className="pt-4 border-t border-black/5 dark:border-white/5 space-y-2">
 							<button
 								onClick={handleDeleteAccount}
-								disabled={loading}
-								className="w-full flex items-center justify-between p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl transition-all group"
+								disabled={loading || !!confirmation}
+								className="w-full flex items-center justify-between p-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-2xl transition-all group disabled:opacity-50"
 							>
 								<span className="text-red-400 font-medium group-hover:text-red-300">
-									Delete Data & Reset
+									Clear Data & Logout
 								</span>
 								<Trash2
 									size={18}
 									className="text-red-400 group-hover:text-red-300"
 								/>
 							</button>
+
+							{/* Emergency Reset for Corruption */}
+							<button
+								onClick={handleEmergencyReset}
+								disabled={loading || !!confirmation}
+								className="w-full text-center text-[10px] text-zen-text-muted hover:text-red-400 transition-colors uppercase tracking-widest opacity-50 hover:opacity-100 disabled:opacity-30"
+							>
+								Emergency Database Reset
+							</button>
+
 							<p className="text-[10px] text-zen-text-muted mt-2 text-center opacity-70">
-								This action strictly deletes your habit data. It does not delete
-								your authentication account.
+								Clears local data. Account remains active on server.
 							</p>
 						</div>
 					</div>

@@ -112,7 +112,7 @@ export function ToastContainer({
 	removeToast: (id: string) => void;
 }) {
 	return (
-		<div className="fixed top-20 left-0 right-0 z-[60] flex flex-col items-center pointer-events-none p-4 space-y-2">
+		<div className="fixed top-20 left-0 right-0 z-[9999] flex flex-col items-center pointer-events-none p-4 space-y-2">
 			<AnimatePresence>
 				{toasts.map((toast) => (
 					<div key={toast.id} className="pointer-events-auto">
