@@ -1,4 +1,4 @@
-import { Github, RefreshCw } from "lucide-react";
+import { Github } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Logo } from "./ui/Logo";
@@ -27,14 +27,7 @@ export function Auth() {
 	};
 
 	return (
-
 		<div className="fixed inset-0 min-h-[100dvh] w-full p-4 bg-white dark:bg-black dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-zen-primary/20 dark:via-black dark:to-black flex items-center justify-center overflow-y-auto transition-colors duration-300">
-			<button
-				onClick={() => window.location.reload()}
-				className="absolute top-8 left-8 z-50 p-3 text-zen-text-muted hover:text-zen-text bg-white shadow-sm border border-black/5 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:border-white/5 rounded-full transition-all backdrop-blur-md"
-			>
-				<RefreshCw size={24} />
-			</button>
 
 			<div className="relative w-full max-w-sm text-center">
 				{/* Ambient Back Glow - Now Outside ZenCard */}
