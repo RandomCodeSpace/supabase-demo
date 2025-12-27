@@ -24,6 +24,12 @@ export class SyncService {
     }
 
     static async pushImmediately() {
+        // Check session before attempting push (critical for PWA backgrounding)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            console.log("🔄 Sync: Skipping push (no session)");
+            return;
+        }
         this.needsSync = true;
         if (this.pushTimer) clearTimeout(this.pushTimer);
         await this.executePush();

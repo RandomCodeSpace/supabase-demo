@@ -150,7 +150,7 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 					</div>
 
 					{/* Input Area */}
-					<div className="p-4 bg-black/20 backdrop-blur-md border-t border-white/5 z-20">
+					<div className="p-4 backdrop-blur-md border-t border-white/5 z-20 shrink-0">
 						<VoiceInput
 							value={newNote}
 							onValueChange={setNewNote}

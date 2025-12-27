@@ -11,6 +11,7 @@ import { UserProfileModal } from "./components/ui/UserProfileModal";
 import { OrientationGuard } from "./components/ui/OrientationGuard";
 import { supabase } from "./backbone/lib/supabase";
 import { useAuthStore } from "./stores/useAuthStore";
+import { SyncService } from "./backbone/services/syncService";
 
 function App() {
 	const { session, setSession } = useAuthStore();
@@ -83,14 +84,10 @@ function App() {
 		// Flush sync when app is backgrounded (critical for mobile PWA)
 		const onVisibilityChange = () => {
 			if (document.visibilityState === "hidden") {
-				import("./backbone/services/syncService").then(({ SyncService }) => {
-					SyncService.pushImmediately();
-				});
+				SyncService.pushImmediately();
 			} else {
 				// Re-entering app - good time to pull
-				import("./backbone/services/syncService").then(({ SyncService }) => {
-					SyncService.pullChanges();
-				});
+				SyncService.pullChanges();
 			}
 		};
 		document.addEventListener("visibilitychange", onVisibilityChange);

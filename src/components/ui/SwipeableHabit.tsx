@@ -54,8 +54,9 @@ export function SwipeableHabit({
 			</div>
 
 			<motion.div
-				onPointerDown={(e) => e.stopPropagation()}
-				onTouchStart={(e) => e.stopPropagation()}
+				// Removing stopPropagation as it blocks standard click events on some mobile browsers/contexts
+				// onPointerDown={(e) => e.stopPropagation()}
+				// onTouchStart={(e) => e.stopPropagation()}
 				drag="x"
 				dragConstraints={{ left: 0, right: 0 }}
 				dragElastic={0.1} // Resistance

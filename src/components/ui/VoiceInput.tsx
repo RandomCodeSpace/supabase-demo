@@ -77,7 +77,7 @@ export function VoiceInput({
 					props.onFocus?.(e);
 				}}
 				className={cn(
-					"w-full bg-black/5 dark:bg-white/5 border border-black/20 dark:border-white/10 rounded-2xl pl-4 py-3 text-zen-text focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed",
+					"w-full bg-transparent border border-white/10 rounded-2xl pl-4 py-3 text-zen-text focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed placeholder:text-zen-text-muted/50",
 					// Add extra padding if there is a right element (like a Send button)
 					rightElement ? "pr-24" : "pr-12",
 					className,

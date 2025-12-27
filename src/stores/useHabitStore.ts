@@ -27,9 +27,13 @@ export const useHabitStore = create<HabitState>((set, get) => ({
                 HabitService.fetchTodayLogs(),
             ]);
 
-            // Calculate progress
-            const completedCount = logs.filter(l => l.status === "completed").length;
-            const progress = habits.length > 0 ? (completedCount / habits.length) * 100 : 0;
+            // Calculate progress - Filter logs to only count VALID habits and ensure uniqueness
+            const validHabitIds = new Set(habits.map(h => h.id));
+            const completedHabits = new Set(
+                logs.filter(l => l.status === "completed" && validHabitIds.has(l.habit_id))
+                    .map(l => l.habit_id)
+            );
+            const progress = habits.length > 0 ? (completedHabits.size / habits.length) * 100 : 0;
 
             set({ habits, logs, todayProgress: progress, isLoading: false });
         } catch (error) {
@@ -43,8 +47,12 @@ export const useHabitStore = create<HabitState>((set, get) => ({
         const newHabits = [habit, ...habits];
 
         // Recalc progress
-        const completedCount = logs.filter(l => l.status === "completed").length;
-        const progress = newHabits.length > 0 ? (completedCount / newHabits.length) * 100 : 0;
+        const validHabitIds = new Set(newHabits.map(h => h.id));
+        const completedHabits = new Set(
+            logs.filter(l => l.status === "completed" && validHabitIds.has(l.habit_id))
+                .map(l => l.habit_id)
+        );
+        const progress = newHabits.length > 0 ? (completedHabits.size / newHabits.length) * 100 : 0;
 
         set({ habits: newHabits, todayProgress: progress });
     },
@@ -57,8 +65,13 @@ export const useHabitStore = create<HabitState>((set, get) => ({
             const newLogs = logs.filter(l => l.habit_id !== id);
 
             // Recalc progress
-            const completedCount = newLogs.filter(l => l.status === "completed").length;
-            const progress = newHabits.length > 0 ? (completedCount / newHabits.length) * 100 : 0;
+            // Note: newLogs is already filtered by id, but we keep consistency
+            const validHabitIds = new Set(newHabits.map(h => h.id));
+            const completedHabits = new Set(
+                newLogs.filter(l => l.status === "completed" && validHabitIds.has(l.habit_id))
+                    .map(l => l.habit_id)
+            );
+            const progress = newHabits.length > 0 ? (completedHabits.size / newHabits.length) * 100 : 0;
 
             set({ habits: newHabits, logs: newLogs, todayProgress: progress });
         } catch (error) {
@@ -80,8 +93,12 @@ export const useHabitStore = create<HabitState>((set, get) => ({
             }
 
             // Recalc progress
-            const completedCount = newLogs.filter(l => l.status === "completed").length;
-            const progress = habits.length > 0 ? (completedCount / habits.length) * 100 : 0;
+            const validHabitIds = new Set(habits.map(h => h.id));
+            const completedHabits = new Set(
+                newLogs.filter(l => l.status === "completed" && validHabitIds.has(l.habit_id))
+                    .map(l => l.habit_id)
+            );
+            const progress = habits.length > 0 ? (completedHabits.size / habits.length) * 100 : 0;
 
             set({ logs: newLogs, todayProgress: progress });
         } catch (error) {

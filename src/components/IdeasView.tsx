@@ -117,7 +117,7 @@ export function IdeasView() {
 			)}
 
 			{/* FAB */}
-			<div className="fixed bottom-24 right-8 z-40">
+			<div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
 				<ShinyButton
 					onClick={() => setShowAddModal(true)}
 					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center !bg-cyan-600 shadow-lg shadow-cyan-600/20 glass-3d"
