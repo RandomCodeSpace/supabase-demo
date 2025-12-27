@@ -1,7 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { type Todo, TodoService } from "../services/todos";
+import { useToast } from "../context/ToastContext";
 
 export function TodoList() {
+	const { error: toastError } = useToast();
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [newTask, setNewTask] = useState("");
 	const [loading, setLoading] = useState(true);
@@ -11,8 +14,8 @@ export function TodoList() {
 			try {
 				const data = await TodoService.fetchTodos();
 				setTodos(data);
-			} catch (error) {
-				console.error("Error fetching todos:", error);
+			} catch (err) {
+				console.error("Error fetching todos:", err);
 			} finally {
 				setLoading(false);
 			}
@@ -29,9 +32,9 @@ export function TodoList() {
 			const todo = await TodoService.addTodo(newTask);
 			setTodos([todo, ...todos]);
 			setNewTask("");
-		} catch (error) {
-			console.error("Error adding todo:", error);
-			alert("Error adding todo!");
+		} catch (err) {
+			console.error("Error adding todo:", err);
+			toastError("Error adding todo!");
 		}
 	};
 

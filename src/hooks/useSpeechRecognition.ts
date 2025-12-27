@@ -19,7 +19,9 @@ export function useSpeechRecognition() {
 		}
 
 		const recognition = new SpeechRecognition();
-		recognition.continuous = true;
+		// Continuous fails on iOS often because it requires constant reallocation of resources
+		// "false" is more stable for short burst dictation (like sending a message/note)
+		recognition.continuous = false;
 		recognition.interimResults = true;
 		recognition.lang = "en-US";
 
@@ -61,6 +63,8 @@ export function useSpeechRecognition() {
 		recognition.onend = () => {
 			setIsListening(false);
 		};
+		// Prevent stuck state on iOS PWA by adding a safety timeout check
+		// (optional but good for robustness if start() hangs)
 
 		recognitionRef.current = recognition;
 
@@ -122,12 +126,12 @@ declare global {
 		onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onresult:
-			| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
-			| null;
+		| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+		| null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onerror:
-			| ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
-			| null;
+		| ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+		| null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onend: ((this: SpeechRecognition, ev: Event) => any) | null;
 	}

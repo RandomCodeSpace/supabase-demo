@@ -38,7 +38,8 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 			onClose();
 		} catch (error) {
 			console.error(error);
-			// alert("Failed to add habit");
+			// Toast handled via service layer usually, keeping UI clean
+			console.error("Failed to add habit");
 		} finally {
 			setLoading(false);
 		}

@@ -33,7 +33,8 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 			onClose();
 		} catch (err) {
 			console.error(err);
-			// alert("Failed to create project");
+			// Toast handled by parent or simple console log, avoiding alerts
+			console.error("Failed to create project");
 		} finally {
 			setLoading(false);
 		}

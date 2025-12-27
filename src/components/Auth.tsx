@@ -1,11 +1,14 @@
 import { Github } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useToast } from "../context/ToastContext";
 import { Logo } from "./ui/Logo";
 import { ZenCard } from "./ui/ZenCard";
 
 export function Auth() {
 	const [loading, setLoading] = useState(false);
+
+	const { error: toastError } = useToast();
 
 	const handleLogin = async (provider: "github" | "google") => {
 		try {
@@ -19,7 +22,7 @@ export function Auth() {
 			if (error) throw error;
 		} catch (error) {
 			if (error instanceof Error) {
-				alert(error.message);
+				toastError(error.message);
 			}
 		} finally {
 			setLoading(false);

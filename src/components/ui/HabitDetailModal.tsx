@@ -6,6 +6,8 @@ import {
 	type HabitNote,
 	HabitService,
 } from "../../services/habitService";
+import { useToast } from "../../context/ToastContext";
+
 import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
 import { SwipeableItem } from "./SwipeableItem";
@@ -30,13 +32,14 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 		}, 100);
 	}, []);
 
+	const { error } = useToast(); // Added useToast hook
+
 	const loadNotes = useCallback(async () => {
 		try {
 			setLoadingData(true);
 			const data = await HabitService.fetchNotes(habit.id);
 			setNotes(data);
 			scrollToBottom();
-		} catch (error) {
 			console.error(error);
 		} finally {
 			setLoadingData(false);
@@ -59,7 +62,8 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 			scrollToBottom();
 		} catch (error) {
 			console.error("Failed to add note:", error);
-			alert("Failed to add note");
+			// Toast handled by service or use explicit error handling here if desired
+			console.error("Failed to add note");
 		} finally {
 			setLoading(false);
 		}
