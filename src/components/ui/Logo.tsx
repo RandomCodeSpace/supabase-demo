@@ -14,7 +14,7 @@ export function Logo({ size = 40, className, animate = true }: LogoProps) {
             style={{ width: size, height: size }}
         >
             <motion.img
-                src="/app-icon.png"
+                src="/app-icon.ico"
                 alt="OSSFlow Logo"
                 className="w-full h-full object-contain"
                 initial={animate ? { opacity: 0, scale: 0.8 } : undefined}

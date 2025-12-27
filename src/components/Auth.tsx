@@ -27,7 +27,7 @@ export function Auth() {
 	};
 
 	return (
-		<div className="flex items-center justify-center min-h-[80vh] w-full p-4">
+		<div className="flex items-center justify-center min-h-screen w-full p-4 bg-black">
 			<ZenCard className="w-full max-w-sm text-center">
 				<div className="relative w-full max-w-md">
 					{/* Ambient Back Glow */}
