@@ -76,13 +76,30 @@ function App() {
 			});
 		};
 
+
 		window.addEventListener("focus", onFocus);
 		window.addEventListener("online", onOnline);
+
+		// Flush sync when app is backgrounded (critical for mobile PWA)
+		const onVisibilityChange = () => {
+			if (document.visibilityState === "hidden") {
+				import("./backbone/services/syncService").then(({ SyncService }) => {
+					SyncService.pushImmediately();
+				});
+			} else {
+				// Re-entering app - good time to pull
+				import("./backbone/services/syncService").then(({ SyncService }) => {
+					SyncService.pullChanges();
+				});
+			}
+		};
+		document.addEventListener("visibilitychange", onVisibilityChange);
 
 		return () => {
 			subscription.unsubscribe();
 			window.removeEventListener("focus", onFocus);
 			window.removeEventListener("online", onOnline);
+			document.removeEventListener("visibilitychange", onVisibilityChange);
 		};
 	}, []);
 

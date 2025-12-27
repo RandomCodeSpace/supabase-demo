@@ -60,7 +60,7 @@ export function IdeasView() {
 	});
 
 	return (
-		<div {...bind()} className="pb-24 pt-8 min-h-screen relative">
+		<div {...bind()} className="pb-24 min-h-full relative">
 			{loading && <LoadingOverlay message="Loading ideas..." />}
 			{/* Header */}
 			<header className="flex flex-col items-center mb-8 space-y-4 relative">
@@ -138,6 +138,7 @@ export function IdeasView() {
 					<ProjectDetailModal
 						project={selectedProject}
 						onClose={() => setSelectedProject(null)}
+						onUpdate={loadProjects}
 					/>
 				)}
 			</AnimatePresence>

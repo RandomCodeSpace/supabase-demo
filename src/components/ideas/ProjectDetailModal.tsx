@@ -1,7 +1,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Copy, Send, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Copy, Send, X, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useToast } from "../../context/ToastContext";
 import {
 	type Project,
@@ -10,22 +10,24 @@ import {
 } from "../../backbone/services/projectService";
 import { LoadingOverlay } from "../ui/LoadingOverlay";
 import { VoiceInput } from "../ui/VoiceInput";
-import { SwipeableItem } from "../ui/SwipeableItem";
 
 interface ProjectDetailModalProps {
 	project: Project;
 	onClose: () => void;
+	onUpdate?: () => void;
 }
 
 export function ProjectDetailModal({
 	project,
 	onClose,
+	onUpdate,
 }: ProjectDetailModalProps) {
 	const [features, setFeatures] = useState<ProjectFeature[]>([]);
 	const { success, error } = useToast();
 	const [newFeature, setNewFeature] = useState("");
 	const [_loading, setLoading] = useState(false);
 	const [loadingData, setLoadingData] = useState(true);
+	const listEndRef = useRef<HTMLDivElement>(null);
 
 	const loadFeatures = useCallback(async () => {
 		try {
@@ -43,6 +45,13 @@ export function ProjectDetailModal({
 		loadFeatures();
 	}, [loadFeatures]);
 
+	// Auto-scroll to bottom when features change
+	useEffect(() => {
+		if (features.length > 0) {
+			listEndRef.current?.scrollIntoView({ behavior: "smooth" });
+		}
+	}, [features.length]);
+
 	const handleAddFeature = async () => {
 		if (!newFeature.trim()) return;
 		setLoading(true);
@@ -53,6 +62,7 @@ export function ProjectDetailModal({
 			});
 			setFeatures([...features, feature]);
 			setNewFeature("");
+			onUpdate?.(); // Notify parent
 		} catch (err) {
 			console.error(err);
 			error("Failed to add feature");
@@ -65,6 +75,7 @@ export function ProjectDetailModal({
 		try {
 			await ProjectService.deleteFeature(id);
 			setFeatures(features.filter((f) => f.id !== id));
+			onUpdate?.(); // Notify parent
 		} catch (err) {
 			console.error(err);
 		}
@@ -92,22 +103,25 @@ ${features
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+		<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
 			<motion.div
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				exit={{ opacity: 0, scale: 0.9 }}
-				className="relative w-full max-w-md h-[80vh]"
+				className="relative w-full max-w-md h-[80vh] flex flex-col"
 			>
 				{(_loading || loadingData) && (
 					<LoadingOverlay
 						message={loadingData ? "Loading features..." : "Updating..."}
 					/>
 				)}
-				<div className="glow-behind bg-cyan-500/20" />
-				<div className="glass-3d rounded-3xl overflow-hidden relative z-10 flex flex-col h-full">
+
+				{/* Modal Card */}
+				<div className="flex-1 flex flex-col glass-3d rounded-3xl overflow-hidden relative z-10 bg-zen-surface">
+					<div className="glow-behind bg-cyan-500/20 pointer-events-none" />
+
 					{/* Header */}
-					<div className="p-6 relative z-10 border-b border-black/5 dark:border-white/5 backdrop-blur-md flex justify-between items-center gap-4">
+					<div className="p-6 border-b border-black/5 dark:border-white/5 backdrop-blur-md flex justify-between items-center gap-4 shrink-0">
 						<div className="flex-1 min-w-0">
 							<h2 className="text-xl font-bold text-zen-text truncate">
 								{project.name}
@@ -137,29 +151,37 @@ ${features
 					<div className="flex-1 overflow-y-auto p-4 space-y-3">
 						<AnimatePresence>
 							{features.map((feature, i) => (
-								<SwipeableItem
+								<motion.div
 									key={feature.id}
-									onDelete={() => handleDeleteFeature(feature.id)}
-									className="mb-3"
+									initial={{ opacity: 0, y: 10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -10 }}
+									className="group flex gap-3 p-4 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-xl items-start"
 								>
-									<div className="flex gap-3 p-4">
-										<span className="text-cyan-500 font-mono font-bold">
-											{i + 1}.
-										</span>
-										<div className="flex-1">
-											<h4 className="font-medium text-zen-text">
-												{feature.title}
-											</h4>
-											{feature.description && (
-												<p className="text-sm text-zen-text-muted mt-1">
-													{feature.description}
-												</p>
-											)}
-										</div>
+									<span className="text-cyan-500 font-mono font-bold mt-0.5 shrink-0">
+										{i + 1}.
+									</span>
+									<div className="flex-1 min-w-0 break-words">
+										<h4 className="font-medium text-zen-text leading-tight">
+											{feature.title}
+										</h4>
+										{feature.description && (
+											<p className="text-sm text-zen-text-muted mt-1">
+												{feature.description}
+											</p>
+										)}
 									</div>
-								</SwipeableItem>
+									<button
+										onClick={() => handleDeleteFeature(feature.id)}
+										className="shrink-0 p-2 text-zen-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+										title="Delete"
+									>
+										<Trash2 size={18} />
+									</button>
+								</motion.div>
 							))}
 						</AnimatePresence>
+						<div ref={listEndRef} />
 						{features.length === 0 && (
 							<div className="text-center text-zen-text-muted/50 py-10 text-sm">
 								No features yet. What needs to be built?
@@ -168,7 +190,7 @@ ${features
 					</div>
 
 					{/* Input Area */}
-					<div className="p-4 bg-zen-surface border-t border-black/5 dark:border-white/10 z-20">
+					<div className="p-4 bg-black/20 backdrop-blur-md border-t border-white/5 z-20 shrink-0">
 						<VoiceInput
 							value={newFeature}
 							onValueChange={setNewFeature}

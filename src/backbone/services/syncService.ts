@@ -23,6 +23,12 @@ export class SyncService {
         this.pushTimer = setTimeout(() => this.executePush(), 2000); // 2s debounce
     }
 
+    static async pushImmediately() {
+        this.needsSync = true;
+        if (this.pushTimer) clearTimeout(this.pushTimer);
+        await this.executePush();
+    }
+
     private static async executePush() {
         if (this.isSyncing) return; // Wait for current sync to finish
         if (!navigator.onLine) return; // Offline, keep needsSync=true
