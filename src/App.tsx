@@ -1,6 +1,6 @@
 import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
-import { LayoutGrid, Lightbulb, Settings } from "lucide-react";
+import { LayoutGrid, Lightbulb, RefreshCw, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
@@ -13,8 +13,18 @@ import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
 	const { session, setSession } = useAuthStore();
-	const [activeTab, setActiveTab] = useState<"ideas" | "todos">("ideas");
+	// Active Tab with Persistence
+	const [activeTab, setActiveTab] = useState<"ideas" | "todos">(() => {
+		const saved = localStorage.getItem("activeTab");
+		return (saved === "ideas" || saved === "todos") ? saved : "ideas";
+	});
+
 	const [showProfileModal, setShowProfileModal] = useState(false);
+
+	// Persist tab change
+	useEffect(() => {
+		localStorage.setItem("activeTab", activeTab);
+	}, [activeTab]);
 
 	// Auth & Initial Load
 	useEffect(() => {
@@ -37,11 +47,9 @@ function App() {
 		if (Math.abs(mx) < 100) return; // Ignore short swipes
 
 		if (xDir < 0 && activeTab === "ideas") {
-			// Swipe Left -> Go to Todos
 			setActiveTab("todos");
 			cancel();
 		} else if (xDir > 0 && activeTab === "todos") {
-			// Swipe Right -> Go to Ideas
 			setActiveTab("ideas");
 			cancel();
 		}
@@ -55,7 +63,16 @@ function App() {
 	return (
 		<div {...bind()} className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300 touch-pan-y">
 			<OrientationGuard />
-			{/* Global Settings Button */}
+
+			{/* Global Refresh Button (Top-Left) */}
+			<button
+				onClick={() => window.location.reload()}
+				className="absolute top-6 left-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm"
+			>
+				<RefreshCw size={20} />
+			</button>
+
+			{/* Global Settings Button (Top-Right) */}
 			<button
 				onClick={() => setShowProfileModal(true)}
 				className="absolute top-6 right-6 z-40 p-2 text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-all backdrop-blur-sm"

@@ -59,7 +59,7 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 						</DrawerClose>
 					</DrawerHeader>
 
-					<form onSubmit={handleSubmit} className="space-y-4">
+					<div className="space-y-4">
 						{loading && <LoadingOverlay message="Starting todo..." />}
 						<div>
 							<label className="block text-sm font-medium text-muted-foreground mb-1">
@@ -75,6 +75,7 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 								onKeyDown={(e) => {
 									if (e.key === "Enter") {
 										e.preventDefault();
+										handleSubmit(e as any);
 									}
 								}}
 							/>
@@ -93,14 +94,14 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 						</div>
 
 						<Button
-							type="submit"
+							onClick={handleSubmit}
 							disabled={!title || loading}
 							className="w-full text-lg h-14 rounded-2xl font-bold mt-4"
 							variant="default" // This will use our primary color
 						>
 							{loading ? "Creating..." : "Start Todo"}
 						</Button>
-					</form>
+					</div>
 				</div>
 			</DrawerContent>
 		</Drawer>

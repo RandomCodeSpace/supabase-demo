@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, Trash2, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	type Habit,
@@ -8,6 +8,7 @@ import {
 } from "../../services/habitService";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
+import { SwipeableItem } from "./SwipeableItem";
 
 interface HabitDetailModalProps {
 	habit: Habit;
@@ -118,26 +119,20 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 					<div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
 						<AnimatePresence>
 							{notes.map((note) => (
-								<motion.div
+								<SwipeableItem
 									key={note.id}
-									initial={{ opacity: 0, y: 10 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0, scale: 0.9 }}
-									className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 relative group"
+									onDelete={() => handleDeleteNote(note.id)}
+									className="mb-3"
 								>
-									<p className="text-zen-text text-sm whitespace-pre-wrap leading-relaxed">
-										{note.content}
-									</p>
-									<p className="text-xs text-zen-text-muted mt-2 opacity-50">
-										{new Date(note.created_at).toLocaleDateString()}
-									</p>
-									<button
-										onClick={() => handleDeleteNote(note.id)}
-										className="absolute top-2 right-2 p-1.5 text-zen-text-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-									>
-										<Trash2 size={14} />
-									</button>
-								</motion.div>
+									<div className="p-4">
+										<p className="text-zen-text text-sm whitespace-pre-wrap leading-relaxed">
+											{note.content}
+										</p>
+										<p className="text-xs text-zen-text-muted mt-2 opacity-50">
+											{new Date(note.created_at).toLocaleDateString()}
+										</p>
+									</div>
+								</SwipeableItem>
 							))}
 						</AnimatePresence>
 						{!loadingData && notes.length === 0 && (

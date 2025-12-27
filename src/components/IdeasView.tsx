@@ -43,6 +43,9 @@ export function IdeasView() {
 
 	// Swipe Up to Add
 	const bind = useDrag(({ movement: [_, my], direction: [__, yDir], velocity: [___, vy], cancel }) => {
+		// Disable if modals open
+		if (showAddModal || selectedProject) return;
+
 		if (vy > 0.5 && yDir < 0 && my < -50) {
 			// Swipe Up
 			setShowAddModal(true);

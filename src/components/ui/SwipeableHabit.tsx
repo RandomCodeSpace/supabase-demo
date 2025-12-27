@@ -29,9 +29,10 @@ export function SwipeableHabit({
 	);
 
 	const handleDragEnd = (
-		_: unknown,
+		event: any,
 		info: { offset: { x: number }; velocity: { x: number } },
 	) => {
+		event?.stopPropagation?.();
 		if (info.offset.x > 100) {
 			onComplete();
 		} else if (info.offset.x < -100) {

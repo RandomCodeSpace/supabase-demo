@@ -76,6 +76,9 @@ export function TodosView() {
 
 	// Swipe Up to Add
 	const bind = useDrag(({ movement: [_, my], direction: [__, yDir], velocity: [___, vy], cancel }) => {
+		// Disable if any modal is open
+		if (showAddModal || selectedHabit || habitToDelete) return;
+
 		if (vy > 0.5 && yDir < 0 && my < -50) {
 			// Swipe Up
 			setShowAddModal(true);
