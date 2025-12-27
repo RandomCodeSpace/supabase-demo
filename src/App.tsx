@@ -5,6 +5,7 @@ import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
 import { TodosView } from "./components/TodosView";
 import { UserProfileModal } from "./components/ui/UserProfileModal";
+import { OrientationGuard } from "./components/ui/OrientationGuard";
 import { supabase } from "./lib/supabase";
 import { cn } from "./lib/utils";
 import { useAuthStore } from "./stores/useAuthStore";
@@ -33,6 +34,7 @@ function App() {
 
 	return (
 		<div className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300">
+			<OrientationGuard />
 			{/* Global Settings Button */}
 			<button
 				onClick={() => setShowProfileModal(true)}

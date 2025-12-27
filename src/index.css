@@ -1,5 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap");
 @import "tailwindcss";
+
+@theme {
+	--font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -88,7 +91,7 @@
 
 @layer base {
 	body {
-		@apply bg-zen-bg text-zen-text antialiased;
+		@apply bg-zen-bg text-zen-text antialiased font-sans;
 		font-feature-settings:
 			"rlig" 1,
 			"calt" 1;
