@@ -1,4 +1,5 @@
 import { AnimatePresence } from "framer-motion";
+import { useDrag } from "@use-gesture/react";
 import { Lightbulb, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
@@ -40,8 +41,21 @@ export function IdeasView() {
 		success("New idea conceptualized!");
 	};
 
+	// Swipe Up to Add
+	const bind = useDrag(({ movement: [_, my], direction: [__, yDir], velocity: [___, vy], cancel }) => {
+		if (vy > 0.5 && yDir < 0 && my < -50) {
+			// Swipe Up
+			setShowAddModal(true);
+			cancel();
+		}
+	}, {
+		axis: 'y',
+		filterTaps: true,
+		from: () => [0, 0],
+	});
+
 	return (
-		<div className="pb-24 pt-8 min-h-screen relative">
+		<div {...bind()} className="pb-24 pt-8 min-h-screen relative">
 			{loading && <LoadingOverlay message="Loading ideas..." />}
 			{/* Header */}
 			<header className="flex flex-col items-center mb-8 space-y-4 relative">

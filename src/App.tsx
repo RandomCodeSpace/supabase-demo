@@ -1,4 +1,5 @@
 import { AnimatePresence } from "framer-motion";
+import { useDrag } from "@use-gesture/react";
 import { LayoutGrid, Lightbulb, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Auth } from "./components/Auth";
@@ -30,10 +31,29 @@ function App() {
 		return () => subscription.unsubscribe();
 	}, []);
 
+	// Gesture Navigation
+	const bind = useDrag(({ movement: [mx], direction: [xDir], velocity: [vx], cancel }) => {
+		if (vx < 0.2) return; // Ignore slow swipes
+		if (Math.abs(mx) < 100) return; // Ignore short swipes
+
+		if (xDir < 0 && activeTab === "ideas") {
+			// Swipe Left -> Go to Todos
+			setActiveTab("todos");
+			cancel();
+		} else if (xDir > 0 && activeTab === "todos") {
+			// Swipe Right -> Go to Ideas
+			setActiveTab("ideas");
+			cancel();
+		}
+	}, {
+		axis: 'x',
+		filterTaps: true,
+	});
+
 	if (!session) return <Auth />;
 
 	return (
-		<div className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300">
+		<div {...bind()} className="min-h-screen max-w-md mx-auto relative bg-zen-bg transition-colors duration-300 touch-pan-y">
 			<OrientationGuard />
 			{/* Global Settings Button */}
 			<button
