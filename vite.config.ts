@@ -23,4 +23,16 @@ export default defineConfig({
 		css: true,
 		exclude: [...configDefaults.exclude, "e2e/*"],
 	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					"vendor-react": ["react", "react-dom"],
+					"vendor-ui": ["framer-motion", "lucide-react", "clsx", "tailwind-merge"],
+					"vendor-supabase": ["@supabase/supabase-js"],
+					"vendor-utils": ["@use-gesture/react", "zustand", "vaul", "next-themes"]
+				},
+			},
+		},
+	},
 } as UserConfig);
