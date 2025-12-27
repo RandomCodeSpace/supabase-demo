@@ -84,10 +84,16 @@ function App() {
 		// Flush sync when app is backgrounded (critical for mobile PWA)
 		const onVisibilityChange = () => {
 			if (document.visibilityState === "hidden") {
-				SyncService.pushImmediately();
+				// Pass session synchronously to avoid async gap
+				const session = useAuthStore.getState().session;
+				SyncService.pushImmediately(session);
 			} else {
-				// Re-entering app - good time to pull
-				SyncService.pullChanges();
+				// Re-entering app - good time to pull AND refresh UI
+				SyncService.pullChanges().then(() => {
+					// Force Stores to reload from IDB
+					import("./stores/useHabitStore").then(({ useHabitStore }) => useHabitStore.getState().fetchData());
+					import("./stores/useProjectStore").then(({ useProjectStore }) => useProjectStore.getState().fetchProjects());
+				});
 			}
 		};
 		document.addEventListener("visibilitychange", onVisibilityChange);

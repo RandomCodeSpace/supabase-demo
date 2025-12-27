@@ -23,10 +23,16 @@ export class SyncService {
         this.pushTimer = setTimeout(() => this.executePush(), 2000); // 2s debounce
     }
 
-    static async pushImmediately() {
+    static async pushImmediately(session?: any) {
         // Check session before attempting push (critical for PWA backgrounding)
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        // If session passed explicitly, use it. Otherwise try to get it (fallback).
+        let activeSession = session;
+        if (!activeSession) {
+            const { data } = await supabase.auth.getSession();
+            activeSession = data.session;
+        }
+
+        if (!activeSession) {
             console.log("🔄 Sync: Skipping push (no session)");
             return;
         }
