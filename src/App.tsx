@@ -14,17 +14,26 @@ import { useAuthStore } from "./stores/useAuthStore";
 function App() {
 	const { session, setSession } = useAuthStore();
 	// Active Tab with Persistence
-	const [activeTab, setActiveTab] = useState<"ideas" | "todos">(() => {
-		const saved = localStorage.getItem("activeTab");
-		return (saved === "ideas" || saved === "todos") ? saved : "ideas";
-	});
+	const [activeTab, setActiveTabPrivate] = useState<"todos" | "ideas">("todos"); // Default to todos initially
 
-	const [showProfileModal, setShowProfileModal] = useState(false);
-
-	// Persist tab change
+	// Load saved tab on mount
 	useEffect(() => {
-		localStorage.setItem("activeTab", activeTab);
-	}, [activeTab]);
+		import("idb-keyval").then(({ get }) => {
+			get("activeTab").then((val) => {
+				if (val === "todos" || val === "ideas") {
+					setActiveTabPrivate(val);
+				}
+			});
+		});
+	}, []);
+
+	const setActiveTab = (tab: "todos" | "ideas") => {
+		setActiveTabPrivate(tab);
+		import("idb-keyval").then(({ set }) => {
+			set("activeTab", tab);
+		});
+	};
+	const [showProfileModal, setShowProfileModal] = useState(false);
 
 	// Auth & Initial Load
 	useEffect(() => {

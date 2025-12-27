@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../lib/supabase";
 import { HabitService } from "../../services/habitService";
+import { del } from "idb-keyval";
 import { useAuthStore } from "../../stores/useAuthStore";
 
 interface UserProfileModalProps {
@@ -27,9 +28,13 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 			// 2. Perform Backend Cleanup
 			await supabase.auth.signOut();
 
-			// 3. Local Cleanup
-			localStorage.removeItem("sb-access-token");
-			localStorage.removeItem("sb-refresh-token");
+			// 3. Local Cleanup (IndexedDB)
+			// Supabase handled its own key via the storage adapter, but we can be explicit if we want
+			// We no longer use localStorage for tokens, so we can skip removeItem calls or just clear IDB if needed.
+			// Actually, supabase.auth.signOut() clears its own storage adapter entry.
+			// But if we want to be paranoid:
+			await del("sb-access-token");
+			await del("sb-refresh-token");
 
 			success("Signed out successfully");
 			onClose();
