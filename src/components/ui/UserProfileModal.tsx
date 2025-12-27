@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../lib/supabase";
 import { HabitService } from "../../services/habitService";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 interface UserProfileModalProps {
 	email?: string;
@@ -15,29 +16,27 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 	const { theme, setTheme } = useTheme();
 	const [loading, setLoading] = useState(false);
 	const { success, error, confirm } = useToast();
+	const { setSession } = useAuthStore();
 
 	const handleSignOut = async () => {
 		try {
 			setLoading(true);
-			// Force aggressive cleanup
+			// 1. Force React State Update IMMEDIATELY (Fixes PWA UI Lag)
+			setSession(null);
+
+			// 2. Perform Backend Cleanup
 			await supabase.auth.signOut();
 
-			// Manually clear session from local store immediately to update UI
-			// without waiting for the subscription callback (which can lag on PWA)
-			localStorage.removeItem("sb-access-token"); // Common default if used, though supabase handles its own
+			// 3. Local Cleanup
+			localStorage.removeItem("sb-access-token");
 			localStorage.removeItem("sb-refresh-token");
 
 			success("Signed out successfully");
-
-			// Small delay to let the toast show, then close/reset
-			setTimeout(() => {
-				onClose();
-				// Optional: Force reload if state doesn't clear in PWA
-				// window.location.reload(); 
-			}, 300);
+			onClose();
 		} catch (_err) {
-			error("Failed to sign out");
-			// Even if API fails, force client-side logout
+			// Even if backend fails, UI is already logged out via setSession(null)
+			error("Signed out (offline mode)");
+			setSession(null);
 			onClose();
 		} finally {
 			setLoading(false);
