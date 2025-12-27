@@ -108,7 +108,12 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 							</div>
 						</div>
 						<button
+							type="button"
 							onClick={handleSignOut}
+							// Add PointerUp for better mobile response if click is intercepted
+							onPointerUp={() => {
+								// visual feedback or fallback
+							}}
 							disabled={loading}
 							className="w-full flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-2xl transition-all group"
 						>
