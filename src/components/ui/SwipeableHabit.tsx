@@ -54,6 +54,8 @@ export function SwipeableHabit({
 			</div>
 
 			<motion.div
+				onPointerDown={(e) => e.stopPropagation()}
+				onTouchStart={(e) => e.stopPropagation()}
 				drag="x"
 				dragConstraints={{ left: 0, right: 0 }}
 				dragElastic={0.1} // Resistance
