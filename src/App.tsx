@@ -1,17 +1,16 @@
-import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
+import { AnimatePresence } from "framer-motion";
 
 import { useEffect, useState } from "react";
+import { supabase } from "./backbone/lib/supabase";
+import { SyncService } from "./backbone/services/syncService";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
-import { TodosView } from "./components/TodosView";
-
 import { AppLayout } from "./components/layout/AppLayout";
-import { UserProfileModal } from "./components/ui/UserProfileModal";
+import { TodosView } from "./components/TodosView";
 import { OrientationGuard } from "./components/ui/OrientationGuard";
-import { supabase } from "./backbone/lib/supabase";
+import { UserProfileModal } from "./components/ui/UserProfileModal";
 import { useAuthStore } from "./stores/useAuthStore";
-import { SyncService } from "./backbone/services/syncService";
 
 function App() {
 	const { session, setSession } = useAuthStore();
@@ -40,7 +39,9 @@ function App() {
 	// Auth & Initial Load & Sync
 	useEffect(() => {
 		const init = async () => {
-			const { data: { session } } = await supabase.auth.getSession();
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
 			setSession(session);
 			if (session) {
 				import("./backbone/services/syncService").then(({ SyncService }) => {
@@ -77,7 +78,6 @@ function App() {
 			});
 		};
 
-
 		window.addEventListener("focus", onFocus);
 		window.addEventListener("online", onOnline);
 
@@ -91,8 +91,12 @@ function App() {
 				// Re-entering app - good time to pull AND refresh UI
 				SyncService.pullChanges().then(() => {
 					// Force Stores to reload from IDB
-					import("./stores/useHabitStore").then(({ useHabitStore }) => useHabitStore.getState().fetchData());
-					import("./stores/useProjectStore").then(({ useProjectStore }) => useProjectStore.getState().fetchProjects());
+					import("./stores/useHabitStore").then(({ useHabitStore }) =>
+						useHabitStore.getState().fetchData(),
+					);
+					import("./stores/useProjectStore").then(({ useProjectStore }) =>
+						useProjectStore.getState().fetchProjects(),
+					);
 				});
 			}
 		};
@@ -104,34 +108,47 @@ function App() {
 			window.removeEventListener("online", onOnline);
 			document.removeEventListener("visibilitychange", onVisibilityChange);
 		};
-	}, []);
+	}, [setSession]);
 
 	// Gesture Navigation
-	const bind = useDrag(({ event, movement: [mx, my], direction: [xDir], velocity: [vx], cancel }) => {
-		// 1. Block if ANY modal is open (Profile, HabitDetail, ProjectDetail)
-		// We check for the generic modal overlay/dialog presence
-		if (document.querySelector('[role="dialog"]') || document.querySelector('.fixed.inset-0.z-\\[100\\]')) return;
+	const bind = useDrag(
+		({
+			event,
+			movement: [mx, my],
+			direction: [xDir],
+			velocity: [vx],
+			cancel,
+		}) => {
+			// 1. Block if ANY modal is open (Profile, HabitDetail, ProjectDetail)
+			// We check for the generic modal overlay/dialog presence
+			if (
+				document.querySelector('[role="dialog"]') ||
+				document.querySelector(".fixed.inset-0.z-\\[100\\]")
+			)
+				return;
 
-		// 2. Block if interacting with swipeable items (prevent conflicts)
-		// Check if the target or any of its parents has the prevention class
-		if ((event?.target as HTMLElement)?.closest('.swipe-prevention')) return;
+			// 2. Block if interacting with swipeable items (prevent conflicts)
+			// Check if the target or any of its parents has the prevention class
+			if ((event?.target as HTMLElement)?.closest(".swipe-prevention")) return;
 
-		if (vx < 0.2) return; // Ignore slow swipes
-		if (Math.abs(mx) < 100) return; // Ignore short swipes
-		if (Math.abs(my) > 50) return; // Ignore diagonal/vertical swipes (scrolling)
+			if (vx < 0.2) return; // Ignore slow swipes
+			if (Math.abs(mx) < 100) return; // Ignore short swipes
+			if (Math.abs(my) > 50) return; // Ignore diagonal/vertical swipes (scrolling)
 
-		if (xDir < 0 && activeTab === "ideas") {
-			setActiveTab("todos");
-			cancel();
-		} else if (xDir > 0 && activeTab === "todos") {
-			setActiveTab("ideas");
-			cancel();
-		}
-	}, {
-		axis: 'x',
-		filterTaps: true,
-		// preventDefault: true, // Be careful with this, might block scroll
-	});
+			if (xDir < 0 && activeTab === "ideas") {
+				setActiveTab("todos");
+				cancel();
+			} else if (xDir > 0 && activeTab === "todos") {
+				setActiveTab("ideas");
+				cancel();
+			}
+		},
+		{
+			axis: "x",
+			filterTaps: true,
+			// preventDefault: true, // Be careful with this, might block scroll
+		},
+	);
 
 	if (!session) return <Auth />;
 
@@ -144,7 +161,10 @@ function App() {
 	};
 
 	return (
-		<div {...bind()} className="min-h-screen bg-zen-bg transition-colors duration-300 touch-pan-y">
+		<div
+			{...bind()}
+			className="min-h-screen bg-zen-bg transition-colors duration-300 touch-pan-y"
+		>
 			<OrientationGuard />
 
 			<AppLayout activeTab={activeTab} onTabChange={handleTabChange}>

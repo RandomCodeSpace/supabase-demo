@@ -1,6 +1,6 @@
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
-import react from "@vitejs/plugin-react";
 import { defineConfig, type UserConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { configDefaults } from "vitest/config";
@@ -91,9 +91,19 @@ export default defineConfig({
 			output: {
 				manualChunks: {
 					"vendor-react": ["react", "react-dom"],
-					"vendor-ui": ["framer-motion", "lucide-react", "clsx", "tailwind-merge"],
+					"vendor-ui": [
+						"framer-motion",
+						"lucide-react",
+						"clsx",
+						"tailwind-merge",
+					],
 					"vendor-supabase": ["@supabase/supabase-js"],
-					"vendor-utils": ["@use-gesture/react", "zustand", "vaul", "next-themes"]
+					"vendor-utils": [
+						"@use-gesture/react",
+						"zustand",
+						"vaul",
+						"next-themes",
+					],
 				},
 			},
 		},

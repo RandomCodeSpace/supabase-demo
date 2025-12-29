@@ -29,7 +29,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 	const error = (message: string) => addToast(message, "error");
 	const confirm = (message: string, onConfirm: () => void) => {
 		const id = Math.random().toString(36).substring(7);
-		setToasts((prev) => [...prev, { id, message, type: "confirmation", onConfirm }]);
+		setToasts((prev) => [
+			...prev,
+			{ id, message, type: "confirmation", onConfirm },
+		]);
 	};
 
 	return (

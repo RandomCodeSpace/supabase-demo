@@ -1,12 +1,12 @@
+import type { Session } from "@supabase/supabase-js";
 import { create } from "zustand";
-import { type Session } from "@supabase/supabase-js";
 
 interface AuthState {
-    session: Session | null;
-    setSession: (session: Session | null) => void;
+	session: Session | null;
+	setSession: (session: Session | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-    session: null,
-    setSession: (session) => set({ session }),
+	session: null,
+	setSession: (session) => set({ session }),
 }));

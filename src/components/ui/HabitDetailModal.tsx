@@ -1,6 +1,5 @@
-
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, X, Trash2 } from "lucide-react";
+import { Send, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	type Habit,
@@ -27,7 +26,9 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 	// Auto-scroll to bottom when notes change
 	useEffect(() => {
 		if (notes.length > 0) {
-			scrollRef.current?.lastElementChild?.scrollIntoView({ behavior: "smooth" });
+			scrollRef.current?.lastElementChild?.scrollIntoView({
+				behavior: "smooth",
+			});
 		}
 	}, [notes.length]);
 

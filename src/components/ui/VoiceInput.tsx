@@ -2,6 +2,7 @@ import { Mic } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useSpeechRecognition } from "../../backbone/hooks/useSpeechRecognition";
 import { cn } from "../../backbone/lib/utils";
+import { AIRewriteButton } from "./AIRewriteButton";
 
 interface VoiceInputProps
 	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -10,6 +11,10 @@ interface VoiceInputProps
 	className?: string;
 	containerClassName?: string;
 	rightElement?: React.ReactNode;
+	/** Context for AI rewrite (e.g., "a habit title", "a project description") */
+	aiContext?: string;
+	/** Enable or disable AI rewrite button (defaults to true if AI is enabled globally) */
+	enableAIRewrite?: boolean;
 }
 
 export function VoiceInput({
@@ -18,6 +23,8 @@ export function VoiceInput({
 	className,
 	containerClassName,
 	rightElement,
+	aiContext,
+	enableAIRewrite = true,
 	...props
 }: VoiceInputProps) {
 	const {
@@ -100,6 +107,14 @@ export function VoiceInput({
 					>
 						<Mic size={16} />
 					</button>
+				)}
+
+				{enableAIRewrite && (
+					<AIRewriteButton
+						text={value}
+						onRewrite={onValueChange}
+						context={aiContext}
+					/>
 				)}
 
 				{rightElement}

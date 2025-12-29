@@ -36,19 +36,23 @@ export function Toast({ id, message, type, onClose, onConfirm }: ToastProps) {
 			animate={{ opacity: 1, y: 0, scale: 1 }}
 			exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
 			layout
-			className={`flex flex-col gap-3 px-4 py-4 rounded-2xl shadow-2xl backdrop-blur-md bg-white/95 dark:bg-zen-surface/95 border border-black/5 dark:border-white/10 min-w-[320px] max-w-[90vw] ${type === "confirmation" ? "items-start" : "flex-row items-center"
-				}`}
+			className={`flex flex-col gap-3 px-4 py-4 rounded-2xl shadow-2xl backdrop-blur-md bg-white/95 dark:bg-zen-surface/95 border border-black/5 dark:border-white/10 min-w-[320px] max-w-[90vw] ${
+				type === "confirmation" ? "items-start" : "flex-row items-center"
+			}`}
 		>
 			<div className="flex items-start gap-3 w-full">
 				<div
-					className={`p-2 rounded-full shrink-0 ${type === "success"
-						? "bg-green-500/10"
-						: type === "error"
-							? "bg-red-500/10"
-							: "bg-amber-500/10"
-						}`}
+					className={`p-2 rounded-full shrink-0 ${
+						type === "success"
+							? "bg-green-500/10"
+							: type === "error"
+								? "bg-red-500/10"
+								: "bg-amber-500/10"
+					}`}
 				>
-					{type === "success" && <CheckCircle className="w-5 h-5 text-green-500" />}
+					{type === "success" && (
+						<CheckCircle className="w-5 h-5 text-green-500" />
+					)}
 					{type === "error" && <XCircle className="w-5 h-5 text-red-500" />}
 					{type === "confirmation" && (
 						<AlertTriangle className="w-5 h-5 text-amber-500" />

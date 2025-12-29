@@ -31,7 +31,6 @@ export function Auth() {
 
 	return (
 		<div className="fixed inset-0 min-h-[100dvh] w-full p-4 bg-white dark:bg-black dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-zen-primary/20 dark:via-black dark:to-black flex items-center justify-center overflow-y-auto transition-colors duration-300">
-
 			<div className="relative w-full max-w-sm text-center">
 				{/* Ambient Back Glow - Now Outside ZenCard */}
 				<div className="glow-behind opacity-40 blur-3xl" />

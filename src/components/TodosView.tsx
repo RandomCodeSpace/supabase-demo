@@ -1,12 +1,12 @@
-import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
+import { AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { Habit } from "../backbone/services/habitService";
 import { useToast } from "../context/ToastContext";
-import {
-	type Habit,
-} from "../backbone/services/habitService";
 import { useHabitStore } from "../stores/useHabitStore";
+import { BlurFade } from "./magicui/blur-fade";
+import { ShinyButton } from "./magicui/shiny-button";
 import { AddHabitModal } from "./ui/AddHabitModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
@@ -14,10 +14,6 @@ import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
 import { ProgressRing } from "./ui/ProgressRing";
 import { SwipeableHabit } from "./ui/SwipeableHabit";
-import { ShinyButton } from "./magicui/shiny-button";
-import { BlurFade } from "./magicui/blur-fade";
-
-
 
 export function TodosView() {
 	const {
@@ -28,7 +24,7 @@ export function TodosView() {
 		fetchData,
 		addHabit: addHabitToStore,
 		toggleHabit,
-		deleteHabit: deleteHabitFromStore
+		deleteHabit: deleteHabitFromStore,
 	} = useHabitStore();
 
 	const [showAddModal, setShowAddModal] = useState(false);
@@ -75,20 +71,28 @@ export function TodosView() {
 	};
 
 	// Swipe Up to Add
-	const bind = useDrag(({ movement: [_, my], direction: [__, yDir], velocity: [___, vy], cancel }) => {
-		// Disable if any modal is open
-		if (showAddModal || selectedHabit || habitToDelete) return;
+	const bind = useDrag(
+		({
+			movement: [_, my],
+			direction: [__, yDir],
+			velocity: [___, vy],
+			cancel,
+		}) => {
+			// Disable if any modal is open
+			if (showAddModal || selectedHabit || habitToDelete) return;
 
-		if (vy > 0.5 && yDir < 0 && my < -50) {
-			// Swipe Up
-			setShowAddModal(true);
-			cancel();
-		}
-	}, {
-		axis: 'y',
-		filterTaps: true,
-		from: () => [0, 0],
-	});
+			if (vy > 0.5 && yDir < 0 && my < -50) {
+				// Swipe Up
+				setShowAddModal(true);
+				cancel();
+			}
+		},
+		{
+			axis: "y",
+			filterTaps: true,
+			from: () => [0, 0],
+		},
+	);
 
 	return (
 		<div {...bind()} className="h-full flex flex-col relative w-full">
@@ -118,7 +122,12 @@ export function TodosView() {
 							(l) => l.habit_id === habit.id && l.status === "completed",
 						);
 						return (
-							<BlurFade key={habit.id} delay={0.04 * idx} inView className="w-full">
+							<BlurFade
+								key={habit.id}
+								delay={0.04 * idx}
+								inView
+								className="w-full"
+							>
 								<SwipeableHabit
 									isCompleted={isCompleted}
 									color={habit.color}

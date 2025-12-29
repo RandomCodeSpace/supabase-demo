@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
+import { clear, del } from "idb-keyval";
 import { LogOut, Monitor, Moon, Sun, Trash2, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { useToast } from "../../context/ToastContext";
 import { supabase } from "../../backbone/lib/supabase";
 import { HabitService } from "../../backbone/services/habitService";
-import { del, clear } from "idb-keyval";
+import { useToast } from "../../context/ToastContext";
 import { useAuthStore } from "../../stores/useAuthStore";
 
 interface UserProfileModalProps {
@@ -49,7 +49,8 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 		// Trigger blocking modal
 		setConfirmation({
 			title: "Clear Data & Logout?",
-			message: "DANGER: This will permanently delete ALL your habits, logs, and notes locally. If synced, they remain on the server.",
+			message:
+				"DANGER: This will permanently delete ALL your habits, logs, and notes locally. If synced, they remain on the server.",
 			isDestructive: true,
 			action: async () => {
 				try {
@@ -64,14 +65,15 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 				} finally {
 					setLoading(false);
 				}
-			}
+			},
 		});
 	};
 
 	const handleEmergencyReset = () => {
 		setConfirmation({
 			title: "Emergency Reset?",
-			message: "Fix Corruption: This will forcibly delete your local database and reload the app. Any data ALREADY SYNCED to the server is safe. Only unsynced local changes will be lost.",
+			message:
+				"Fix Corruption: This will forcibly delete your local database and reload the app. Any data ALREADY SYNCED to the server is safe. Only unsynced local changes will be lost.",
 			isDestructive: true,
 			action: async () => {
 				await clear();
@@ -79,7 +81,7 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 				await db.delete();
 				localStorage.clear();
 				window.location.reload();
-			}
+			},
 		});
 	};
 
@@ -97,7 +99,9 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 						animate={{ opacity: 1, scale: 1 }}
 						className="w-full max-w-xs bg-white dark:bg-zen-surface rounded-2xl p-6 shadow-2xl border border-red-500/20"
 					>
-						<h3 className="text-lg font-bold text-red-500 mb-2">{confirmation.title}</h3>
+						<h3 className="text-lg font-bold text-red-500 mb-2">
+							{confirmation.title}
+						</h3>
 						<p className="text-sm text-zen-text-muted mb-6 loading-relaxed">
 							{confirmation.message}
 						</p>
@@ -166,10 +170,11 @@ export function UserProfileModal({ email, onClose }: UserProfileModalProps) {
 										disabled={!!confirmation}
 										className={`
                                         flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all
-                                        ${theme === t
-												? "bg-white text-black shadow-sm"
-												: "text-zen-text-muted hover:text-zen-text"
-											}
+                                        ${
+																					theme === t
+																						? "bg-white text-black shadow-sm"
+																						: "text-zen-text-muted hover:text-zen-text"
+																				}
                                         disabled:opacity-50
 `}
 									>

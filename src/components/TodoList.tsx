@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { type Todo, TodoService } from "../backbone/services/todos";
 import { useToast } from "../context/ToastContext";

@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-	--font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-sans:
+		"Outfit", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -90,7 +92,6 @@
 }
 
 @layer base {
-
 	html,
 	body {
 		@apply h-full w-full overflow-hidden overscroll-none;
@@ -105,7 +106,6 @@
 }
 
 @layer utilities {
-
 	/* Base Glass - Updated for better Light Mode support */
 	.glass {
 		@apply bg-white/70 dark:bg-zen-surface/70 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm transition-all duration-300;
@@ -141,7 +141,7 @@
 }
 
 @theme {
-	--animate-border-beam: border-beam calc(var(--duration)*1s) infinite linear;
+	--animate-border-beam: border-beam calc(var(--duration) * 1s) infinite linear;
 
 	@keyframes border-beam {
 		100% {

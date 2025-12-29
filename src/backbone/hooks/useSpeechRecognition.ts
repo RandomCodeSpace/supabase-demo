@@ -126,12 +126,12 @@ declare global {
 		onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onresult:
-		| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
-		| null;
+			| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+			| null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onerror:
-		| ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
-		| null;
+			| ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+			| null;
 		// biome-ignore lint/suspicious/noExplicitAny: standard event type
 		onend: ((this: SpeechRecognition, ev: Event) => any) | null;
 	}

@@ -1,10 +1,10 @@
+import { registerSW } from "virtual:pwa-register";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { registerSW } from "virtual:pwa-register";
 import App from "./App.tsx";
+import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import { ThemeProvider } from "./components/theme-provider";
 import { ToastProvider } from "./context/ToastContext";
-import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary";
 import "./index.css";
 
 // Register Service Worker for offline support
@@ -25,7 +25,12 @@ if (!rootElement) throw new Error("Root element not found");
 
 createRoot(rootElement).render(
 	<StrictMode>
-		<ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="ossflow-theme">
+		<ThemeProvider
+			attribute="class"
+			defaultTheme="system"
+			enableSystem
+			storageKey="ossflow-theme"
+		>
 			<GlobalErrorBoundary>
 				<ToastProvider>
 					<App />

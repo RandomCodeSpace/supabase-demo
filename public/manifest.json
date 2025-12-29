@@ -1,23 +1,23 @@
 {
-    "name": "OSSFlow",
-    "short_name": "OSSFlow",
-    "description": "Zen Productivity & Idea Management",
-    "theme_color": "#16a34a",
-    "background_color": "#09090b",
-    "display": "standalone",
-    "start_url": "/",
-    "icons": [
-        {
-            "src": "/app-icon.ico",
-            "sizes": "1024x1024",
-            "type": "image/ico",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        }
-    ]
+	"name": "OSSFlow",
+	"short_name": "OSSFlow",
+	"description": "Zen Productivity & Idea Management",
+	"theme_color": "#16a34a",
+	"background_color": "#09090b",
+	"display": "standalone",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "/app-icon.ico",
+			"sizes": "1024x1024",
+			"type": "image/ico",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/favicon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		}
+	]
 }

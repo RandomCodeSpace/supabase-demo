@@ -1,4 +1,9 @@
-import { db, type HabitLocal, type HabitLogLocal, type HabitNoteLocal } from "../lib/db";
+import {
+	db,
+	type HabitLocal,
+	type HabitLogLocal,
+	type HabitNoteLocal,
+} from "../lib/db";
 import { supabase } from "../lib/supabase";
 import { SyncService } from "./syncService";
 
@@ -19,14 +24,18 @@ export class HabitService {
 		const today = new Date().toISOString().split("T")[0];
 		// Filter logs for today
 		// Note: Compound index [habit_id+completed_at] could be used, but filtering all logs is fast enough for now
-		return await db.habit_logs.filter(log => log.completed_at === today && log.sync_status !== 'deleted').toArray();
+		return await db.habit_logs
+			.filter(
+				(log) => log.completed_at === today && log.sync_status !== "deleted",
+			)
+			.toArray();
 	}
 
 	static async fetchNotes(habitId: string) {
 		return await db.habit_notes
 			.where("habit_id")
 			.equals(habitId)
-			.filter(note => note.sync_status !== 'deleted')
+			.filter((note) => note.sync_status !== "deleted")
 			.sortBy("created_at");
 	}
 
@@ -88,10 +97,10 @@ export class HabitService {
 			.where({ habit_id: habitId, completed_at: date })
 			.first();
 
-		if (existing && existing.sync_status !== 'deleted') {
+		if (existing && existing.sync_status !== "deleted") {
 			// Toggle OFF
 			// Smart Prune: If pending (never on server), hard delete
-			if (existing.sync_status === 'pending') {
+			if (existing.sync_status === "pending") {
 				await db.habit_logs.delete(existing.id);
 				// Do NOT trigger Sync
 				return null;
@@ -101,9 +110,12 @@ export class HabitService {
 			await db.habit_logs.update(existing.id, { sync_status: "deleted" });
 			SyncService.pushChanges();
 			return null;
-		} else if (existing && existing.sync_status === 'deleted') {
+		} else if (existing && existing.sync_status === "deleted") {
 			// Restore (Toggle ON)
-			await db.habit_logs.update(existing.id, { sync_status: "pending", status: "completed" });
+			await db.habit_logs.update(existing.id, {
+				sync_status: "pending",
+				status: "completed",
+			});
 			SyncService.pushChanges();
 			return existing; // Return the restored log
 		} else {
@@ -154,7 +166,9 @@ export class HabitService {
 		// Or mark ALL as deleted.
 		// Let's iterate and mark deleted.
 		const habits = await db.habits.toArray();
-		await db.habits.bulkUpdate(habits.map(h => ({ key: h.id, changes: { sync_status: "deleted" } })));
+		await db.habits.bulkUpdate(
+			habits.map((h) => ({ key: h.id, changes: { sync_status: "deleted" } })),
+		);
 		SyncService.pushChanges();
 	}
 }

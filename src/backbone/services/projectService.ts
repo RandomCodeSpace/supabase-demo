@@ -1,4 +1,4 @@
-import { db, type ProjectLocal, type ProjectFeatureLocal } from "../lib/db";
+import { db, type ProjectFeatureLocal, type ProjectLocal } from "../lib/db";
 import { supabase } from "../lib/supabase";
 import { SyncService } from "./syncService";
 
@@ -18,7 +18,7 @@ export const ProjectService = {
 			const count = await db.project_features
 				.where("project_id")
 				.equals(p.id)
-				.filter(f => f.sync_status !== 'deleted')
+				.filter((f) => f.sync_status !== "deleted")
 				.count();
 			result.push({ ...p, featureCount: count });
 		}
@@ -53,8 +53,11 @@ export const ProjectService = {
 		if (project.sync_status === "pending") {
 			await db.projects.delete(id);
 			// Also hard delete features (optional, but cleaner)
-			const features = await db.project_features.where("project_id").equals(id).toArray();
-			await db.project_features.bulkDelete(features.map(f => f.id));
+			const features = await db.project_features
+				.where("project_id")
+				.equals(id)
+				.toArray();
+			await db.project_features.bulkDelete(features.map((f) => f.id));
 			return;
 		}
 
@@ -106,7 +109,10 @@ export const ProjectService = {
 	// Missing toggle/update? Existing file didn't seem to export updateFeature but ProjectDetailModal might typically use it.
 	// Implementing updateFeature just in case users need it later or if I missed it.
 	async updateFeature(id: string, updates: Partial<ProjectFeatureLocal>) {
-		await db.project_features.update(id, { ...updates, sync_status: "pending" });
+		await db.project_features.update(id, {
+			...updates,
+			sync_status: "pending",
+		});
 		SyncService.pushChanges();
-	}
+	},
 };

@@ -1,23 +1,29 @@
-import { AnimatePresence } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
+import { AnimatePresence } from "framer-motion";
 import { Lightbulb, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { Project } from "../backbone/services/projectService";
 import { useToast } from "../context/ToastContext";
-import { ShinyButton } from "./magicui/shiny-button";
-import { BlurFade } from "./magicui/blur-fade";
-import { type Project } from "../backbone/services/projectService";
 import { useProjectStore } from "../stores/useProjectStore";
 import { AddProjectModal } from "./ideas/AddProjectModal";
 // import { ProjectCard } from "./ideas/ProjectCard";
 import { ProjectDetailModal } from "./ideas/ProjectDetailModal";
+import { BentoCard, BentoGrid } from "./magicui/bento-grid";
+import { BlurFade } from "./magicui/blur-fade";
+import { BorderBeam } from "./magicui/border-beam";
+import { ShinyButton } from "./magicui/shiny-button";
 import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
-import { BentoCard, BentoGrid } from "./magicui/bento-grid";
-import { BorderBeam } from "./magicui/border-beam";
 import { SwipeableWrapper } from "./ui/SwipeableWrapper";
 
 export function IdeasView() {
-	const { projects, isLoading: loading, fetchProjects, addProject, deleteProject } = useProjectStore();
+	const {
+		projects,
+		isLoading: loading,
+		fetchProjects,
+		addProject,
+		deleteProject,
+	} = useProjectStore();
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 	const { success, confirm } = useToast();
@@ -32,20 +38,28 @@ export function IdeasView() {
 	};
 
 	// Swipe Up to Add
-	const bind = useDrag(({ movement: [_, my], direction: [__, yDir], velocity: [___, vy], cancel }) => {
-		// Disable if modals open
-		if (showAddModal || selectedProject) return;
+	const bind = useDrag(
+		({
+			movement: [_, my],
+			direction: [__, yDir],
+			velocity: [___, vy],
+			cancel,
+		}) => {
+			// Disable if modals open
+			if (showAddModal || selectedProject) return;
 
-		if (vy > 0.5 && yDir < 0 && my < -50) {
-			// Swipe Up
-			setShowAddModal(true);
-			cancel();
-		}
-	}, {
-		axis: 'y',
-		filterTaps: true,
-		from: () => [0, 0],
-	});
+			if (vy > 0.5 && yDir < 0 && my < -50) {
+				// Swipe Up
+				setShowAddModal(true);
+				cancel();
+			}
+		},
+		{
+			axis: "y",
+			filterTaps: true,
+			from: () => [0, 0],
+		},
+	);
 
 	return (
 		<div {...bind()} className="h-full flex flex-col relative w-full">
@@ -71,7 +85,12 @@ export function IdeasView() {
 				<BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
 					<AnimatePresence>
 						{projects.map((project, idx) => (
-							<BlurFade key={project.id} delay={0.04 * idx} inView className="h-full">
+							<BlurFade
+								key={project.id}
+								delay={0.04 * idx}
+								inView
+								className="h-full"
+							>
 								<SwipeableWrapper
 									onDelete={() => {
 										confirm("Delete this idea?", async () => {
