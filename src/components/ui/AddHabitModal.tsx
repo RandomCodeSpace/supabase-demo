@@ -1,16 +1,64 @@
-import { X } from "lucide-react";
+import {
+	Dialog,
+	DialogTrigger,
+	DialogSurface,
+	DialogTitle,
+	DialogBody,
+	DialogActions,
+	DialogContent,
+	Button,
+	makeStyles,
+	tokens,
+	shorthands,
+	Label
+} from "@fluentui/react-components";
+import { Dismiss24Regular } from "@fluentui/react-icons";
 import { useState } from "react";
 import { type Habit, HabitService } from "../../backbone/services/habitService";
-import { Button } from "./button";
-import {
-	Drawer,
-	DrawerClose,
-	DrawerContent,
-	DrawerHeader,
-	DrawerTitle,
-} from "./drawer";
-import { LoadingOverlay } from "./LoadingOverlay";
 import { VoiceInput } from "./VoiceInput";
+
+const useStyles = makeStyles({
+	dialogSurface: {
+		width: "100%",
+		maxWidth: "100%",
+		position: "fixed",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		margin: 0,
+		...shorthands.borderRadius(tokens.borderRadiusXLarge, tokens.borderRadiusXLarge, 0, 0),
+		maxHeight: "90dvh",
+		display: "flex",
+		flexDirection: "column",
+
+		"@media (min-width: 768px)": {
+			width: "480px",
+			maxWidth: "480px",
+			position: "relative",
+			bottom: "auto",
+			left: "auto",
+			right: "auto",
+			margin: "auto",
+			...shorthands.borderRadius(tokens.borderRadiusLarge),
+		}
+	},
+	header: {
+		display: "flex",
+		justifyContent: "space-between",
+		alignItems: "center",
+		marginBottom: "16px"
+	},
+	form: {
+		display: "flex",
+		flexDirection: "column",
+		...shorthands.gap("16px")
+	},
+	field: {
+		display: "flex",
+		flexDirection: "column",
+		...shorthands.gap("8px")
+	}
+});
 
 interface AddHabitModalProps {
 	onClose: () => void;
@@ -18,6 +66,7 @@ interface AddHabitModalProps {
 }
 
 export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
+	const styles = useStyles();
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -31,80 +80,63 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 			const habit = await HabitService.createHabit({
 				title,
 				description,
-				color: "#4ade80", // Default green
+				color: "#4ade80",
 				icon: "circle",
 			});
 			onAdded(habit);
 			onClose();
 		} catch (error) {
 			console.error(error);
-			// Toast handled via service layer usually, keeping UI clean
-			console.error("Failed to add habit");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<Drawer open={true} onOpenChange={(open) => !open && onClose()}>
-			<DrawerContent className="max-w-md mx-auto">
-				<div className="p-6">
-					<DrawerHeader className="p-0 mb-6 flex justify-between items-center">
-						<DrawerTitle className="text-xl font-bold text-foreground">
-							New Todo
-						</DrawerTitle>
-						<DrawerClose asChild>
-							<Button variant="ghost" size="icon" className="rounded-full">
-								<X size={20} />
-							</Button>
-						</DrawerClose>
-					</DrawerHeader>
-
-					<div className="space-y-4">
-						{loading && <LoadingOverlay message="Starting todo..." />}
-						<div>
-							<label className="block text-sm font-medium text-muted-foreground mb-1">
-								Title
-							</label>
-							<VoiceInput
-								value={title}
-								onValueChange={setTitle}
-								placeholder="e.g. Morning Meditation"
-								rows={1}
-								className="bg-secondary/50 border-transparent focus:border-primary"
-								style={{ minHeight: "3rem" }}
-								onKeyDown={(e) => {
-									if (e.key === "Enter") {
-										e.preventDefault();
-										handleSubmit(e as any);
-									}
-								}}
-							/>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-muted-foreground mb-1">
-								Description (Optional)
-							</label>
-							<VoiceInput
-								value={description}
-								onValueChange={setDescription}
-								placeholder="What is this todo about?"
-								rows={3}
-								className="bg-secondary/50 border-transparent focus:border-primary"
-							/>
-						</div>
-
-						<Button
-							onClick={handleSubmit}
-							disabled={!title || loading}
-							className="w-full text-lg h-14 rounded-2xl font-bold mt-4"
-							variant="default" // This will use our primary color
-						>
-							{loading ? "Creating..." : "Start Todo"}
-						</Button>
+		<Dialog open={true} onOpenChange={(_, data) => !data.open && onClose()}>
+			<DialogSurface className={styles.dialogSurface}>
+				<DialogBody>
+					<div className={styles.header}>
+						<DialogTitle>New Todo</DialogTitle>
+						<DialogActions>
+							<DialogTrigger disableButtonEnhancement>
+								<Button appearance="subtle" icon={<Dismiss24Regular />} aria-label="Close" onClick={onClose} />
+							</DialogTrigger>
+						</DialogActions>
 					</div>
-				</div>
-			</DrawerContent>
-		</Drawer>
+
+					<DialogContent className={styles.form}>
+						<form onSubmit={handleSubmit} className={styles.form}>
+							<div className={styles.field}>
+								<Label htmlFor="todo-title" weight="semibold">Title</Label>
+								<VoiceInput
+									value={title}
+									onValueChange={setTitle}
+									placeholder="e.g. Morning Meditation"
+									className="min-h-[3rem]"
+								/>
+							</div>
+							<div className={styles.field}>
+								<Label htmlFor="todo-desc" weight="semibold">Description (Optional)</Label>
+								<VoiceInput
+									value={description}
+									onValueChange={setDescription}
+									placeholder="What is this todo about?"
+									className="min-h-[6rem]"
+								/>
+							</div>
+							<Button
+								appearance="primary"
+								type="submit"
+								disabled={!title || loading}
+								size="large"
+							>
+								{loading ? "Creating..." : "Start Todo"}
+							</Button>
+						</form>
+					</DialogContent>
+				</DialogBody>
+			</DialogSurface>
+		</Dialog>
 	);
 }

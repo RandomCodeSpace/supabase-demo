@@ -1,21 +1,97 @@
-import { useDrag } from "@use-gesture/react";
-import { AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import {
+	makeStyles,
+	tokens,
+	Text,
+	Button,
+	shorthands,
+	Checkbox
+} from "@fluentui/react-components";
+import {
+	Add24Regular,
+	Add24Filled,
+	Delete24Regular,
+	bundleIcon
+} from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
+import { useHabitStore } from "../stores/useHabitStore";
 import type { Habit } from "../backbone/services/habitService";
 import { useToast } from "../context/ToastContext";
-import { useHabitStore } from "../stores/useHabitStore";
-import { BlurFade } from "./magicui/blur-fade";
-import { ShinyButton } from "./magicui/shiny-button";
 import { AddHabitModal } from "./ui/AddHabitModal";
-import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
+import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { LoadingOverlay } from "./ui/LoadingOverlay";
 import { Logo } from "./ui/Logo";
 import { ProgressRing } from "./ui/ProgressRing";
-import { SwipeableHabit } from "./ui/SwipeableHabit";
+
+const AddIcon = bundleIcon(Add24Filled, Add24Regular);
+
+const useStyles = makeStyles({
+	root: {
+		position: "relative",
+		height: "100%",
+		width: "100%",
+		display: "flex",
+		flexDirection: "column",
+		backgroundColor: tokens.colorNeutralBackground2,
+		...shorthands.padding("16px"),
+		boxSizing: "border-box"
+	},
+	header: {
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		marginBottom: "24px",
+		flexShrink: 0,
+		...shorthands.gap("8px")
+	},
+	list: {
+		display: "flex",
+		flexDirection: "column",
+		...shorthands.gap("12px"),
+		overflowY: "auto",
+		paddingBottom: "100px",
+		flexGrow: 1
+	},
+	habitCard: {
+		display: "flex",
+		alignItems: "center",
+		...shorthands.padding("12px"),
+		backgroundColor: tokens.colorNeutralBackground1,
+		...shorthands.borderRadius(tokens.borderRadiusMedium),
+		boxShadow: tokens.shadow2,
+		cursor: "pointer",
+		...shorthands.gap("12px")
+	},
+	colorStrip: {
+		width: "6px",
+		height: "40px",
+		borderRadius: "3px"
+	},
+	content: {
+		flexGrow: 1,
+		display: "flex",
+		flexDirection: "column"
+	},
+	fabContainer: {
+		position: "absolute",
+		bottom: "24px",
+		right: "24px",
+		zIndex: 10,
+		"@media (min-width: 768px)": {
+			bottom: "32px",
+			right: "32px"
+		}
+	},
+	fab: {
+		height: "56px",
+		width: "56px",
+		borderRadius: "28px",
+		boxShadow: tokens.shadow16
+	}
+});
 
 export function TodosView() {
+	const styles = useStyles();
 	const {
 		habits,
 		logs,
@@ -30,38 +106,20 @@ export function TodosView() {
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 	const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
-
 	const { success, error: toastError } = useToast();
 
-	// Initial Load
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
 
-	const handleComplete = async (habitId: string) => {
+	const handleComplete = async (e: React.MouseEvent | React.ChangeEvent, habitId: string) => {
+		e.stopPropagation();
 		try {
 			await toggleHabit(habitId);
 			success("Status updated");
 		} catch (err) {
-			console.error("Error toggling completion:", err);
+			console.error(err);
 			toastError("Failed to update status");
-		}
-	};
-
-	const handleDelete = (habitId: string) => {
-		setHabitToDelete(habitId);
-	};
-
-	const confirmDelete = async () => {
-		if (!habitToDelete) return;
-		try {
-			await deleteHabitFromStore(habitToDelete);
-			success("Todo deleted");
-		} catch (err) {
-			console.error("Error deleting habit:", err);
-			toastError("Failed to delete todo");
-		} finally {
-			setHabitToDelete(null);
 		}
 	};
 
@@ -70,141 +128,105 @@ export function TodosView() {
 		success("New todo started");
 	};
 
-	// Swipe Up to Add
-	const bind = useDrag(
-		({
-			movement: [_, my],
-			direction: [__, yDir],
-			velocity: [___, vy],
-			cancel,
-		}) => {
-			// Disable if any modal is open
-			if (showAddModal || selectedHabit || habitToDelete) return;
+	const handleDelete = (id: string) => {
+		setHabitToDelete(id);
+	}
 
-			if (vy > 0.5 && yDir < 0 && my < -50) {
-				// Swipe Up
-				setShowAddModal(true);
-				cancel();
-			}
-		},
-		{
-			axis: "y",
-			filterTaps: true,
-			from: () => [0, 0],
-		},
-	);
+	const confirmDelete = async () => {
+		if (!habitToDelete) return;
+		try {
+			await deleteHabitFromStore(habitToDelete);
+			success("Todo deleted");
+		} catch (e) {
+			toastError("Failed to delete");
+		} finally {
+			setHabitToDelete(null);
+		}
+	}
 
 	return (
-		<div {...bind()} className="h-full flex flex-col relative w-full">
+		<div className={styles.root}>
 			{loading && <LoadingOverlay message="Loading todos..." />}
 
-			{/* Header with Progress Ring */}
-			<header className="flex flex-col items-center mb-6 space-y-4 relative shrink-0">
-				<ProgressRing percentage={todayProgress} size={160} color="#4ade80" />
-				<div className="text-center">
-					<div className="flex items-center justify-center gap-2 mb-1">
+			<header className={styles.header}>
+				<ProgressRing percentage={todayProgress} size={160} color={tokens.colorPaletteGreenBackground3} />
+				<div style={{ textAlign: 'center' }}>
+					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
 						<Logo size={24} animate={false} />
-						<h1 className="text-2xl font-bold text-zen-text">Todos</h1>
+						<Text size={500} weight="bold">Todos</Text>
 					</div>
-					<p className="text-zen-text-muted">
+					<Text size={300} style={{ color: tokens.colorNeutralForeground3 }}>
 						{Math.round(todayProgress)}% completed
-					</p>
+					</Text>
 				</div>
 			</header>
 
-			{/* Habits List Container (Scrollable) */}
-			{/* Added pb-24 for mobile nav and FAB clearance */}
-			{/* Added pt-4 to prevent first item shadow clipping */}
-			<div className="flex-1 overflow-y-auto min-h-0 space-y-4 pb-24 pt-4 px-1 -mx-1 no-scrollbar">
-				<AnimatePresence>
-					{habits.map((habit, idx) => {
-						const isCompleted = logs.some(
-							(l) => l.habit_id === habit.id && l.status === "completed",
-						);
-						return (
-							<BlurFade
-								key={habit.id}
-								delay={0.04 * idx}
-								inView
-								className="w-full"
-							>
-								<SwipeableHabit
-									isCompleted={isCompleted}
-									color={habit.color}
-									onComplete={() => handleComplete(habit.id)}
-									onDelete={() => handleDelete(habit.id)}
-								>
-									<div
-										className="flex items-center gap-4 cursor-pointer"
-										onClick={() => setSelectedHabit(habit)}
-									>
-										<div
-											className="w-3 h-12 rounded-full"
-											style={{ backgroundColor: habit.color }}
-										/>
-										<div>
-											<h3 className="font-bold text-lg text-zen-text">
-												{habit.title}
-											</h3>
-											{habit.description && (
-												<p className="text-sm text-zen-text-muted">
-													{habit.description}
-												</p>
-											)}
-										</div>
-									</div>
-								</SwipeableHabit>
-							</BlurFade>
-						);
-					})}
-				</AnimatePresence>
-
-				{habits.length === 0 && (
-					<div className="text-center text-zen-text-muted py-12">
-						<p>No todos yet.</p>
-						<p className="text-sm">Tap + to start your journey.</p>
+			<div className={styles.list}>
+				{habits.map(habit => {
+					const isCompleted = logs.some(l => l.habit_id === habit.id && l.status === "completed");
+					return (
+						<div key={habit.id} className={styles.habitCard} onClick={() => setSelectedHabit(habit)}>
+							<div className={styles.colorStrip} style={{ backgroundColor: habit.color }} />
+							<div className={styles.content}>
+								<Text weight="semibold" style={{ textDecoration: isCompleted ? 'line-through' : 'none', opacity: isCompleted ? 0.6 : 1 }}>
+									{habit.title}
+								</Text>
+								{habit.description && <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{habit.description}</Text>}
+							</div>
+							<Checkbox
+								checked={isCompleted}
+								onChange={(e) => handleComplete(e, habit.id)}
+								onClick={(e) => e.stopPropagation()}
+							/>
+							<Button
+								appearance="transparent"
+								icon={<Delete24Regular />}
+								onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }}
+								aria-label="Delete"
+							/>
+						</div>
+					)
+				})}
+				{habits.length === 0 && !loading && (
+					<div style={{ textAlign: 'center', padding: '40px' }}>
+						<Text style={{ color: tokens.colorNeutralForeground3 }}>No todos yet. Tap + to start.</Text>
 					</div>
 				)}
 			</div>
 
-			{/* Floating Action Button - Shiny Magic */}
-			<div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
-				<ShinyButton
+			<div className={styles.fabContainer}>
+				<Button
+					appearance="primary"
+					icon={<AddIcon />}
+					className={styles.fab}
 					onClick={() => setShowAddModal(true)}
-					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center bg-zen-btn-primary shadow-lg shadow-green-500/20 glass-3d"
-				>
-					<Plus size={32} className="text-white" />
-				</ShinyButton>
+					size="large"
+					aria-label="Add new todo"
+				/>
 			</div>
 
-			{/* Add Modal */}
-			<AnimatePresence>
-				{showAddModal && (
-					<AddHabitModal
-						onClose={() => setShowAddModal(false)}
-						onAdded={handleAddHabit}
-					/>
-				)}
-			</AnimatePresence>
+			{showAddModal && (
+				<AddHabitModal
+					onClose={() => setShowAddModal(false)}
+					onAdded={handleAddHabit}
+				/>
+			)}
 
-			{/* Detail Modal */}
-			<AnimatePresence>
-				{selectedHabit && (
-					<HabitDetailModal
-						habit={selectedHabit}
-						onClose={() => setSelectedHabit(null)}
-					/>
-				)}
-			</AnimatePresence>
+			{selectedHabit && (
+				<HabitDetailModal
+					habit={selectedHabit}
+					onClose={() => setSelectedHabit(null)}
+				/>
+			)}
 
-			{/* Confirmation Modal */}
 			<ConfirmationModal
 				isOpen={!!habitToDelete}
 				onClose={() => setHabitToDelete(null)}
 				onConfirm={confirmDelete}
 				title="Delete Todo?"
-				message="This action cannot be undone. All notes and history for this todo will be lost."
+				message="This action cannot be undone."
 			/>
+
 		</div>
 	);
 }

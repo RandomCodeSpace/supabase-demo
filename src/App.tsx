@@ -6,7 +6,7 @@ import { supabase } from "./backbone/lib/supabase";
 import { SyncService } from "./backbone/services/syncService";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
-import { AppLayout } from "./components/layout/AppLayout";
+import { Shell } from "./components/layout/Shell";
 import { TodosView } from "./components/TodosView";
 import { OrientationGuard } from "./components/ui/OrientationGuard";
 import { UserProfileModal } from "./components/ui/UserProfileModal";
@@ -150,6 +150,8 @@ function App() {
 		},
 	);
 
+	// Gesture Navigation
+
 	if (!session) return <Auth />;
 
 	const handleTabChange = (tab: string) => {
@@ -161,16 +163,18 @@ function App() {
 	};
 
 	return (
+		// Wrapper for gestures. FluentRoot provides the 100dvh context.
+		// We use inline style or class for 100% size to fill FluentRoot.
 		<div
 			{...bind()}
-			className="min-h-screen bg-zen-bg transition-colors duration-300 touch-pan-y"
+			style={{ width: '100%', height: '100%' }}
 		>
 			<OrientationGuard />
 
-			<AppLayout activeTab={activeTab} onTabChange={handleTabChange}>
+			<Shell activeTab={activeTab} onTabChange={handleTabChange}>
 				{activeTab === "todos" && <TodosView />}
 				{activeTab === "ideas" && <IdeasView />}
-			</AppLayout>
+			</Shell>
 
 			{/* Global Profile Modal */}
 			<AnimatePresence>

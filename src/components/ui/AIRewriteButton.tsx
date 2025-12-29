@@ -1,12 +1,29 @@
-import { Sparkles } from "lucide-react";
+import {
+	Button,
+	makeStyles
+} from "@fluentui/react-components";
+import { SparkleRegular, SparkleFilled, bundleIcon } from "@fluentui/react-icons";
 import { useState } from "react";
-import { cn } from "../../backbone/lib/utils";
 import { AIRewriteService } from "../../backbone/services/aiRewriteService";
 import { useToast } from "../../context/ToastContext";
 
+const SparkleIcon = bundleIcon(SparkleFilled, SparkleRegular);
+
+const useStyles = makeStyles({
+	loading: {
+		animationDuration: "2s",
+		animationIterationCount: "infinite",
+		animationName: {
+			from: { transform: "rotate(0deg)" },
+			to: { transform: "rotate(360deg)" },
+		},
+		animationTimingFunction: "linear",
+	}
+});
+
 interface AIRewriteButtonProps {
 	text: string;
-	onRewrite: (newText: string) => void;
+	onRewrite: (text: string) => void;
 	context?: string;
 	className?: string;
 }
@@ -19,6 +36,7 @@ export function AIRewriteButton({
 }: AIRewriteButtonProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const { error } = useToast();
+	const styles = useStyles();
 
 	const handleRewrite = async () => {
 		if (!text.trim() || isLoading) return;
@@ -45,21 +63,14 @@ export function AIRewriteButton({
 	}
 
 	return (
-		<button
-			type="button"
+		<Button
+			appearance="subtle"
+			icon={<SparkleIcon className={isLoading ? styles.loading : undefined} />}
 			onClick={handleRewrite}
 			disabled={!text.trim() || isLoading}
-			className={cn(
-				"p-2 rounded-xl transition-all",
-				isLoading
-					? "bg-purple-500 text-white shadow-lg shadow-purple-500/30"
-					: "text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
-				"disabled:opacity-50 disabled:cursor-not-allowed",
-				className,
-			)}
+			className={className}
 			title={isLoading ? "Rewriting..." : "Rewrite with AI"}
-		>
-			<Sparkles size={16} className={cn(isLoading && "animate-spin")} />
-		</button>
+			aria-label="Rewrite text with AI"
+		/>
 	);
 }

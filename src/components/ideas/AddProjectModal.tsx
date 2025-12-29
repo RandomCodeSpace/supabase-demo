@@ -1,16 +1,65 @@
-import { X } from "lucide-react";
+import {
+	Dialog,
+	DialogTrigger,
+	DialogSurface,
+	DialogTitle,
+	DialogBody,
+	DialogActions,
+	DialogContent,
+	Button,
+	makeStyles,
+	tokens,
+	shorthands,
+	Label
+} from "@fluentui/react-components";
+import { Dismiss24Regular } from "@fluentui/react-icons";
 import { useState } from "react";
 import { ProjectService } from "../../backbone/services/projectService";
-import { Button } from "../ui/button";
-import {
-	Drawer,
-	DrawerClose,
-	DrawerContent,
-	DrawerHeader,
-	DrawerTitle,
-} from "../ui/drawer";
-import { LoadingOverlay } from "../ui/LoadingOverlay";
 import { VoiceInput } from "../ui/VoiceInput";
+
+const useStyles = makeStyles({
+	dialogSurface: {
+		// Mobile Bottom Sheet Styles
+		width: "100%",
+		maxWidth: "100%",
+		position: "fixed",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		margin: 0,
+		...shorthands.borderRadius(tokens.borderRadiusXLarge, tokens.borderRadiusXLarge, 0, 0),
+		maxHeight: "90dvh", // PWA safety
+		overflowY: "auto",
+
+		// Desktop Center Logic
+		"@media (min-width: 768px)": {
+			width: "480px", // Standard modal width
+			maxWidth: "480px",
+			position: "relative", // Reset to default centered
+			bottom: "auto",
+			left: "auto",
+			right: "auto",
+			margin: "auto",
+			...shorthands.borderRadius(tokens.borderRadiusLarge),
+		}
+	},
+	header: {
+		display: "flex",
+		justifyContent: "space-between",
+		alignItems: "center",
+		marginBottom: "16px"
+	},
+	form: {
+		display: "flex",
+		flexDirection: "column",
+		...shorthands.gap("16px")
+	},
+	field: {
+		display: "flex",
+		flexDirection: "column",
+		...shorthands.gap("8px")
+	}
+});
 
 interface AddProjectModalProps {
 	onClose: () => void;
@@ -18,6 +67,7 @@ interface AddProjectModalProps {
 }
 
 export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
+	const styles = useStyles();
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -33,72 +83,59 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 			onClose();
 		} catch (err) {
 			console.error(err);
-			// Toast handled by parent or simple console log, avoiding alerts
-			console.error("Failed to create project");
+			// Toast ideally handled by service or context
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<Drawer open={true} onOpenChange={(open) => !open && onClose()}>
-			<DrawerContent className="max-w-md mx-auto">
-				<div className="p-6">
-					<DrawerHeader className="p-0 mb-6 flex justify-between items-center">
-						<DrawerTitle className="text-xl font-bold text-foreground">
-							New Idea
-						</DrawerTitle>
-						<DrawerClose asChild>
-							<Button variant="ghost" size="icon" className="rounded-full">
-								<X size={20} />
+		<Dialog open={true} onOpenChange={(_, data) => !data.open && onClose()}>
+			<DialogSurface className={styles.dialogSurface}>
+				<DialogBody>
+					<div className={styles.header}>
+						<DialogTitle>New Idea</DialogTitle>
+						<DialogActions>
+							<DialogTrigger disableButtonEnhancement>
+								<Button appearance="subtle" icon={<Dismiss24Regular />} aria-label="Close" onClick={onClose} />
+							</DialogTrigger>
+						</DialogActions>
+					</div>
+
+					<DialogContent className={styles.form}>
+						<form onSubmit={handleSubmit} className={styles.form}>
+							<div className={styles.field}>
+								<Label htmlFor="proj-name" weight="semibold">Project Name</Label>
+								<VoiceInput
+									value={name}
+									onValueChange={setName}
+									placeholder="e.g. AI Fitness App"
+									className="min-h-[3rem]" // fallback helpers
+								/>
+							</div>
+
+							<div className={styles.field}>
+								<Label htmlFor="proj-desc" weight="semibold">Description / Goal</Label>
+								<VoiceInput
+									value={description}
+									onValueChange={setDescription}
+									placeholder="What problem does it solve?"
+									className="min-h-[6rem]"
+								/>
+							</div>
+
+							<Button
+								appearance="primary"
+								type="submit"
+								disabled={!name || loading}
+								size="large"
+							>
+								{loading ? "Creating..." : "Start Brainstorming"}
 							</Button>
-						</DrawerClose>
-					</DrawerHeader>
-
-					<form onSubmit={handleSubmit} className="space-y-4">
-						{loading && <LoadingOverlay message="Conceptualizing..." />}
-						<div>
-							<label className="block text-sm font-medium text-muted-foreground mb-1">
-								Project Name
-							</label>
-							<VoiceInput
-								value={name}
-								onValueChange={setName}
-								placeholder="e.g. AI Fitness App"
-								rows={1}
-								className="bg-secondary/50 border-transparent focus:border-primary"
-								style={{ minHeight: "3rem" }}
-								onKeyDown={(e) => {
-									if (e.key === "Enter") {
-										e.preventDefault();
-									}
-								}}
-							/>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-muted-foreground mb-1">
-								Description / Goal
-							</label>
-							<VoiceInput
-								value={description}
-								onValueChange={setDescription}
-								placeholder="What problem does it solve?"
-								rows={3}
-								className="bg-secondary/50 border-transparent focus:border-primary"
-							/>
-						</div>
-
-						<Button
-							type="submit"
-							disabled={!name || loading}
-							className="w-full text-lg h-14 rounded-2xl font-bold mt-4"
-							variant="default"
-						>
-							{loading ? "Creating..." : "Start Brainstorming"}
-						</Button>
-					</form>
-				</div>
-			</DrawerContent>
-		</Drawer>
+						</form>
+					</DialogContent>
+				</DialogBody>
+			</DialogSurface>
+		</Dialog>
 	);
 }

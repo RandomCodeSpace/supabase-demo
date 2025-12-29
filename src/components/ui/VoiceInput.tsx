@@ -1,20 +1,62 @@
-import { Mic } from "lucide-react";
+import {
+	makeStyles,
+	tokens,
+	Textarea,
+	Button,
+	shorthands,
+	mergeClasses
+} from "@fluentui/react-components";
+import { MicRegular, MicFilled, bundleIcon } from "@fluentui/react-icons";
 import { useEffect, useRef } from "react";
 import { useSpeechRecognition } from "../../backbone/hooks/useSpeechRecognition";
-import { cn } from "../../backbone/lib/utils";
 import { AIRewriteButton } from "./AIRewriteButton";
 
-interface VoiceInputProps
-	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+const MicIcon = bundleIcon(MicFilled, MicRegular);
+
+const useStyles = makeStyles({
+	container: {
+		position: "relative",
+		display: "flex",
+		flexDirection: "column",
+		width: "100%",
+	},
+	textarea: {
+		width: "100%",
+		"& textarea": {
+			minHeight: "80px", // equivalent to likely size
+			maxHeight: "300px",
+			resize: "none",
+			fontFamily: tokens.fontFamilyBase,
+			...shorthands.padding("12px", "12px", "48px", "12px"), // Bottom padding for actions
+		}
+	},
+	actionsContainer: {
+		position: "absolute",
+		right: "8px",
+		bottom: "8px",
+		display: "flex",
+		...shorthands.gap("4px"),
+		zIndex: 10,
+	},
+	micActive: {
+		backgroundColor: tokens.colorPaletteRedBackground3,
+		color: tokens.colorNeutralForegroundOnBrand,
+		"&:hover": {
+			backgroundColor: tokens.colorPaletteRedBackground2,
+		}
+	}
+});
+
+interface VoiceInputProps {
 	value: string;
 	onValueChange: (value: string) => void;
-	className?: string;
+	className?: string; // Legacy support or extra styling
 	containerClassName?: string;
 	rightElement?: React.ReactNode;
-	/** Context for AI rewrite (e.g., "a habit title", "a project description") */
 	aiContext?: string;
-	/** Enable or disable AI rewrite button (defaults to true if AI is enabled globally) */
 	enableAIRewrite?: boolean;
+	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
+	placeholder?: string;
 }
 
 export function VoiceInput({
@@ -27,6 +69,7 @@ export function VoiceInput({
 	enableAIRewrite = true,
 	...props
 }: VoiceInputProps) {
+	const styles = useStyles();
 	const {
 		isListening,
 		transcript,
@@ -36,26 +79,15 @@ export function VoiceInput({
 		hasSupport,
 	} = useSpeechRecognition();
 
-	// Effect to update value with transcript
-	// We capture the text *before* listening started to append properly
 	const textBeforeListening = useRef("");
 
 	useEffect(() => {
-		if (isListening) {
-			// If this is a new listening session (transcript just started), we might want to capture the current value
-			// But managing "when session started" vs "transcript update" in a purely reactive way is tricky.
-			// Simplest "append" logic:
-			if (transcript) {
-				onValueChange(
-					textBeforeListening.current
-						? `${textBeforeListening.current} ${transcript}`
-						: transcript,
-				);
-			}
-		} else {
-			// When not listening, update our ref so next time we start, we know what base text we have
-			// However, we only want to update this if we are NOT currently in the middle of receiving a transcript
-			// This is handled by the toggle function logic below mostly, but good to keep in sync.
+		if (isListening && transcript) {
+			onValueChange(
+				textBeforeListening.current
+					? `${textBeforeListening.current} ${transcript}`
+					: transcript
+			);
 		}
 	}, [transcript, isListening, onValueChange]);
 
@@ -63,50 +95,43 @@ export function VoiceInput({
 		if (isListening) {
 			stopListening();
 		} else {
-			textBeforeListening.current = value; // Snapshot current text
-			resetTranscript(); // Clear any old transcript
+			textBeforeListening.current = value;
+			resetTranscript();
 			startListening();
 		}
 	};
 
+	const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		onValueChange(e.target.value);
+		if (!isListening) {
+			textBeforeListening.current = e.target.value;
+		}
+	}
+
 	return (
-		<div className={cn("relative flex items-end", containerClassName)}>
-			<textarea
+		<div className={mergeClasses(styles.container, containerClassName)}>
+			<Textarea
 				value={value}
-				onChange={(e) => {
-					onValueChange(e.target.value);
-					if (!isListening) {
-						textBeforeListening.current = e.target.value;
-					}
+				onChange={handleOnChange}
+				className={mergeClasses(styles.textarea, className)}
+				placeholder={props.placeholder}
+				onFocus={props.onFocus}
+				// Fluent Textarea doesn't pass all props directly to textarea comfortably without slot props, trying direct
+				textarea={{
+					className: "min-h-[100px]" // fallback if styles fail or needed
 				}}
-				onFocus={(e) => {
-					e.target.scrollIntoView({ behavior: "smooth", block: "center" });
-					props.onFocus?.(e);
-				}}
-				className={cn(
-					"w-full bg-transparent border border-white/10 rounded-2xl pl-4 py-3 text-zen-text focus:outline-none focus:border-zen-primary transition-colors resize-none text-sm leading-relaxed placeholder:text-zen-text-muted/50",
-					// Add extra padding if there is a right element (like a Send button)
-					rightElement ? "pr-24" : "pr-12",
-					className,
-				)}
-				{...props}
 			/>
 
-			<div className="absolute right-2 bottom-2 flex items-center gap-1.5 z-10">
+			<div className={styles.actionsContainer}>
 				{hasSupport && (
-					<button
-						type="button"
+					<Button
+						appearance={isListening ? "primary" : "subtle"}
+						icon={<MicIcon />}
 						onClick={handleToggleListening}
-						className={cn(
-							"p-2 rounded-xl transition-all",
-							isListening
-								? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
-								: "text-zen-text-muted hover:text-zen-text bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
-						)}
+						className={isListening ? styles.micActive : undefined}
 						title={isListening ? "Stop listening" : "Start dictation"}
-					>
-						<Mic size={16} />
-					</button>
+						aria-label={isListening ? "Stop listening" : "Start dictation"}
+					/>
 				)}
 
 				{enableAIRewrite && (

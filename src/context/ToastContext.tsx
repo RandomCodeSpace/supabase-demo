@@ -1,9 +1,13 @@
-import { createContext, type ReactNode, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import {
-	ToastContainer,
-	type ToastProps,
-	type ToastType,
-} from "../components/ui/Toast";
+	useToastController,
+	Toast,
+	ToastTitle,
+	ToastBody,
+	Toaster,
+	ToastTrigger,
+	Link
+} from "@fluentui/react-components";
 
 interface ToastContextType {
 	success: (message: string) => void;
@@ -14,34 +18,50 @@ interface ToastContextType {
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-	const [toasts, setToasts] = useState<Omit<ToastProps, "onClose">[]>([]);
+	const toasterId = "default-toaster";
+	const { dispatchToast } = useToastController(toasterId);
 
-	const addToast = (message: string, type: ToastType) => {
-		const id = Math.random().toString(36).substring(7);
-		setToasts((prev) => [...prev, { id, message, type }]);
+	const success = (message: string) => {
+		dispatchToast(
+			<Toast>
+				<ToastTitle>Success</ToastTitle>
+				<ToastBody>{message}</ToastBody>
+			</Toast>,
+			{ intent: "success" }
+		);
 	};
 
-	const removeToast = (id: string) => {
-		setToasts((prev) => prev.filter((t) => t.id !== id));
+	const error = (message: string) => {
+		dispatchToast(
+			<Toast>
+				<ToastTitle>Error</ToastTitle>
+				<ToastBody>{message}</ToastBody>
+			</Toast>,
+			{ intent: "error" }
+		);
 	};
 
-	const success = (message: string) => addToast(message, "success");
-	const error = (message: string) => addToast(message, "error");
 	const confirm = (message: string, onConfirm: () => void) => {
-		const id = Math.random().toString(36).substring(7);
-		setToasts((prev) => [
-			...prev,
-			{ id, message, type: "confirmation", onConfirm },
-		]);
+		dispatchToast(
+			<Toast>
+				<ToastTitle>Confirmation Required</ToastTitle>
+				<ToastBody>
+					{message}
+					<div style={{ marginTop: '8px' }}>
+						<ToastTrigger>
+							<Link onClick={onConfirm}>Confirm</Link>
+						</ToastTrigger>
+					</div>
+				</ToastBody>
+			</Toast>,
+			{ intent: "info", timeout: -1 }
+		);
 	};
 
 	return (
 		<ToastContext.Provider value={{ success, error, confirm }}>
+			<Toaster toasterId={toasterId} />
 			{children}
-			<ToastContainer
-				toasts={toasts.map((t) => ({ ...t, onClose: removeToast }))}
-				removeToast={removeToast}
-			/>
 		</ToastContext.Provider>
 	);
 }

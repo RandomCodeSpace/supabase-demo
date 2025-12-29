@@ -1,74 +1,92 @@
 import { motion } from "framer-motion";
+import {
+	makeStyles,
+	tokens,
+	Text
+} from "@fluentui/react-components";
+
+const useStyles = makeStyles({
+	root: {
+		position: "relative",
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center"
+	},
+	label: {
+		position: "absolute",
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		zIndex: 30
+	},
+	track: {
+		color: tokens.colorNeutralStroke1 // or transparent
+	}
+});
 
 interface ProgressRingProps {
-	percentage: number;
+	percentage: number; // 0-100
 	size?: number;
 	strokeWidth?: number;
-	color?: string;
+	color?: string; // Hex color for SVG gradient support or Token?
+	// Fluent Tokens are variables, so we might need to extract value or use currentColor
 }
 
 export function ProgressRing({
 	percentage,
 	size = 120,
 	strokeWidth = 8,
-	color = "#4ade80",
+	color = "#4ade80", // Keep default hex for SVG gradient
 }: ProgressRingProps) {
+	const styles = useStyles();
 	const radius = (size - strokeWidth) / 2;
 	const circumference = radius * 2 * Math.PI;
 	const offset = circumference - (percentage / 100) * circumference;
 
 	return (
 		<div
-			className="relative flex items-center justify-center"
+			className={styles.root}
 			style={{ width: size, height: size }}
 		>
-			<div className="relative z-10">
-				{/* Outer Glow for Pop */}
+			<div style={{ position: 'relative', zIndex: 10 }}>
+				{/* Outer Glow */}
 				<div
-					className="absolute inset-0 rounded-full blur-xl opacity-20"
-					style={{ backgroundColor: color }}
+					style={{
+						position: 'absolute',
+						inset: 0,
+						borderRadius: '9999px',
+						filter: 'blur(24px)',
+						opacity: 0.2,
+						backgroundColor: color
+					}}
 				/>
 				<svg
 					width={size}
 					height={size}
-					className="transform -rotate-90 relative z-20 drop-shadow-xl"
+					style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 20px 13px rgba(0, 0, 0, 0.1))' }}
 					aria-label="Daily Progress"
 				>
 					<defs>
-						{/* Progress Liquid Gradient */}
-						<linearGradient
-							id="liquidGradient"
-							x1="0%"
-							y1="0%"
-							x2="100%"
-							y2="0%"
-						>
+						<linearGradient id="liquidGradient" x1="0%" y1="0%" x2="100%" y2="0%">
 							<stop offset="0%" stopColor={color} stopOpacity="0.5" />
 							<stop offset="50%" stopColor={color} stopOpacity="1" />
 							<stop offset="100%" stopColor={color} stopOpacity="0.8" />
 						</linearGradient>
 
-						{/* Background Glass Track Gradient */}
-						<linearGradient
-							id="trackGradient"
-							x1="0%"
-							y1="100%"
-							x2="100%"
-							y2="0%"
-						>
+						<linearGradient id="trackGradient" x1="0%" y1="100%" x2="100%" y2="0%">
 							<stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
 							<stop offset="50%" stopColor="currentColor" stopOpacity="0.1" />
 							<stop offset="100%" stopColor="currentColor" stopOpacity="0.2" />
 						</linearGradient>
 
-						{/* Inner Highlight for Water/Glass Effect */}
 						<filter id="glassGlow" x="-20%" y="-20%" width="140%" height="140%">
 							<feGaussianBlur stdDeviation="2" result="blur" />
 							<feComposite in="SourceGraphic" in2="blur" operator="over" />
 						</filter>
 					</defs>
 
-					{/* Background Ring (Glassy Track) */}
+					{/* Track */}
 					<circle
 						cx={size / 2}
 						cy={size / 2}
@@ -76,13 +94,10 @@ export function ProgressRing({
 						stroke="url(#trackGradient)"
 						strokeWidth={strokeWidth}
 						fill="transparent"
-						className="text-black dark:text-white"
-						style={{
-							filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.05))",
-						}}
+						className={styles.track}
 					/>
 
-					{/* Liquid Progress Ring */}
+					{/* Progress */}
 					<motion.circle
 						cx={size / 2}
 						cy={size / 2}
@@ -101,10 +116,10 @@ export function ProgressRing({
 					/>
 				</svg>
 			</div>
-			<div className="absolute flex flex-col items-center justify-center z-30">
-				<span className="text-3xl font-bold text-zen-text drop-shadow-sm">
+			<div className={styles.label}>
+				<Text size={700} weight="bold" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
 					{Math.round(percentage)}%
-				</span>
+				</Text>
 			</div>
 		</div>
 	);

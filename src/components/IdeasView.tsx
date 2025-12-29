@@ -1,22 +1,95 @@
-import { useDrag } from "@use-gesture/react";
-import { AnimatePresence } from "framer-motion";
-import { Lightbulb, Plus } from "lucide-react";
+import {
+	makeStyles,
+	tokens,
+	Card,
+	CardHeader,
+	Button,
+	Title1,
+	Subtitle2,
+	Text,
+	shorthands,
+} from "@fluentui/react-components";
+import {
+	Lightbulb24Regular,
+	Lightbulb24Filled,
+	Add24Regular,
+	Add24Filled,
+	Delete24Regular,
+	bundleIcon
+} from "@fluentui/react-icons";
 import { useEffect, useState } from "react";
-import type { Project } from "../backbone/services/projectService";
-import { useToast } from "../context/ToastContext";
 import { useProjectStore } from "../stores/useProjectStore";
+import { type Project } from "../backbone/services/projectService";
+import { useToast } from "../context/ToastContext";
 import { AddProjectModal } from "./ideas/AddProjectModal";
-// import { ProjectCard } from "./ideas/ProjectCard";
 import { ProjectDetailModal } from "./ideas/ProjectDetailModal";
-import { BentoCard, BentoGrid } from "./magicui/bento-grid";
-import { BlurFade } from "./magicui/blur-fade";
-import { BorderBeam } from "./magicui/border-beam";
-import { ShinyButton } from "./magicui/shiny-button";
-import { LoadingOverlay } from "./ui/LoadingOverlay";
-import { Logo } from "./ui/Logo";
-import { SwipeableWrapper } from "./ui/SwipeableWrapper";
+import { LoadingOverlay } from "./ui/LoadingOverlay"; // Needs rewrite
+
+const LightbulbIcon = bundleIcon(Lightbulb24Filled, Lightbulb24Regular);
+const AddIcon = bundleIcon(Add24Filled, Add24Regular);
+
+const useStyles = makeStyles({
+	root: {
+		position: "relative",
+		height: "100%",
+		width: "100%",
+		display: "flex",
+		flexDirection: "column",
+		backgroundColor: tokens.colorNeutralBackground2,
+		...shorthands.padding("16px"),
+		boxSizing: "border-box", // Critical for 100% height calculations
+	},
+	header: {
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		marginBottom: "24px",
+		flexShrink: 0,
+	},
+	headerIcon: {
+		color: tokens.colorBrandForeground1,
+		...shorthands.padding("12px"),
+		borderRadius: tokens.borderRadiusCircular,
+		backgroundColor: tokens.colorNeutralBackground1,
+		boxShadow: tokens.shadow4,
+		marginBottom: "12px",
+	},
+	grid: {
+		display: "grid",
+		gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+		gap: "16px",
+		overflowY: "auto",
+		paddingBottom: "100px", // Space for FAB
+		...shorthands.padding("4px"), // Prevent shadow clip
+	},
+	card: {
+		cursor: "pointer",
+		...shorthands.transition("transform", "0.2s"),
+		":hover": {
+			transform: "scale(1.02)"
+		}
+	},
+	fabContainer: {
+		position: "absolute",
+		bottom: "24px",
+		right: "24px",
+		zIndex: 10,
+		// Desktop adjustment
+		"@media (min-width: 768px)": {
+			bottom: "32px",
+			right: "32px"
+		}
+	},
+	fab: {
+		height: "56px",
+		width: "56px",
+		borderRadius: "28px",
+		boxShadow: tokens.shadow16
+	}
+});
 
 export function IdeasView() {
+	const styles = useStyles();
 	const {
 		projects,
 		isLoading: loading,
@@ -26,8 +99,9 @@ export function IdeasView() {
 	} = useProjectStore();
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-	const { success, confirm } = useToast();
+	const { success } = useToast();
 
+	// Initial fetch
 	useEffect(() => {
 		fetchProjects();
 	}, [fetchProjects]);
@@ -37,132 +111,83 @@ export function IdeasView() {
 		success("New idea conceptualized!");
 	};
 
-	// Swipe Up to Add
-	const bind = useDrag(
-		({
-			movement: [_, my],
-			direction: [__, yDir],
-			velocity: [___, vy],
-			cancel,
-		}) => {
-			// Disable if modals open
-			if (showAddModal || selectedProject) return;
-
-			if (vy > 0.5 && yDir < 0 && my < -50) {
-				// Swipe Up
-				setShowAddModal(true);
-				cancel();
-			}
-		},
-		{
-			axis: "y",
-			filterTaps: true,
-			from: () => [0, 0],
-		},
-	);
+	const handleDelete = async (e: React.MouseEvent, id: string) => {
+		e.stopPropagation();
+		await deleteProject(id);
+		success("Project deleted");
+	}
 
 	return (
-		<div {...bind()} className="h-full flex flex-col relative w-full">
+		<div className={styles.root}>
+			{/* TODO: Replace LoadingOverlay with Fluent Spinner */}
 			{loading && <LoadingOverlay message="Loading ideas..." />}
-			{/* Header */}
-			<header className="flex flex-col items-center mb-6 space-y-4 relative shrink-0">
-				<div className="glass-3d p-4 rounded-full bg-zen-surface text-cyan-500">
-					<Lightbulb size={48} />
+
+			<header className={styles.header}>
+				<div className={styles.headerIcon}>
+					<LightbulbIcon style={{ fontSize: 48 }} />
 				</div>
-				<div className="text-center">
-					<div className="flex items-center justify-center gap-2 mb-1">
-						<Logo size={24} animate={false} />
-						<h1 className="text-2xl font-bold text-zen-text">Ideas</h1>
-					</div>
-					<p className="text-zen-text-muted">Brainstorm your next big thing</p>
-				</div>
+				<Title1 align="center">Ideas</Title1>
+				<Subtitle2 align="center" style={{ color: tokens.colorNeutralForeground2 }}>Brainstorm your next big thing</Subtitle2>
 			</header>
 
-			{/* Projects Grid Container (Scrollable) */}
-			{/* Added pb-24 for mobile nav and FAB clearance */}
-			{/* Added pt-4 to prevent first item shadow clipping */}
-			<div className="flex-1 overflow-y-auto min-h-0 pb-24 pt-4 px-1 -mx-1 no-scrollbar">
-				<BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-					<AnimatePresence>
-						{projects.map((project, idx) => (
-							<BlurFade
-								key={project.id}
-								delay={0.04 * idx}
-								inView
-								className="h-full"
-							>
-								<SwipeableWrapper
-									onDelete={() => {
-										confirm("Delete this idea?", async () => {
-											await deleteProject(project.id);
-											success("Project deleted");
-										});
-									}}
-									className="h-full"
-								>
-									<BentoCard
-										name={project.name}
-										description={project.description}
-										featureCount={project.featureCount}
-										onClick={() => setSelectedProject(project)}
-										className="h-full"
-										background={
-											<div className="absolute inset-0 z-0 opacity-50 flex items-center justify-center">
-												{/* Abstract geometry/icon as background */}
-												<div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 blur-3xl animate-pulse" />
-											</div>
-										}
-									>
-										{/* Border Beam for 'Active' or newest project as a highlight */}
-										{idx === 0 && (
-											<BorderBeam
-												size={150}
-												duration={10}
-												colorFrom="#00E5FF" // Cyan accent
-												colorTo="#A855F7" // Purple accent
-											/>
-										)}
-									</BentoCard>
-								</SwipeableWrapper>
-							</BlurFade>
-						))}
-					</AnimatePresence>
-				</BentoGrid>
-
+			<div className={styles.grid}>
+				{projects.map((project) => (
+					<Card
+						key={project.id}
+						className={styles.card}
+						onClick={() => setSelectedProject(project)}
+					>
+						<CardHeader
+							header={<Text weight="semibold" size={400}>{project.name}</Text>}
+							description={<Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{project.featureCount || 0} features</Text>}
+							action={
+								<Button
+									appearance="subtle"
+									icon={<Delete24Regular />}
+									onClick={(e) => handleDelete(e, project.id)}
+									aria-label="Delete project"
+								/>
+							}
+						/>
+						<Text style={{ padding: '0 12px 12px 12px', color: tokens.colorNeutralForeground2 }}>
+							{project.description}
+						</Text>
+					</Card>
+				))}
 				{projects.length === 0 && !loading && (
-					<div className="text-center text-zen-text-muted py-12">
-						<p>No ideas yet.</p>
-						<p className="text-sm">Tap + to start brainstorming.</p>
+					<div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '40px' }}>
+						<Text size={300} style={{ color: tokens.colorNeutralForeground3 }}>No ideas yet. Tap + to start.</Text>
 					</div>
 				)}
 			</div>
 
-			{/* FAB */}
-			<div className="fixed bottom-24 right-6 z-40 md:bottom-8 md:right-8">
-				<ShinyButton
+			<div className={styles.fabContainer}>
+				<Button
+					appearance="primary"
+					icon={<AddIcon />}
+					className={styles.fab}
 					onClick={() => setShowAddModal(true)}
-					className="!rounded-full !p-0 w-16 h-16 flex items-center justify-center !bg-cyan-600 shadow-lg shadow-cyan-600/20 glass-3d"
-				>
-					<Plus size={32} className="text-white" />
-				</ShinyButton>
+					size="large"
+					aria-label="Add new idea"
+				/>
 			</div>
 
-			{/* Modals */}
-			<AnimatePresence>
-				{showAddModal && (
-					<AddProjectModal
-						onClose={() => setShowAddModal(false)}
-						onAdded={handleAddProject}
-					/>
-				)}
-				{selectedProject && (
-					<ProjectDetailModal
-						project={selectedProject}
-						onClose={() => setSelectedProject(null)}
-						onUpdate={fetchProjects}
-					/>
-				)}
-			</AnimatePresence>
+			{/* Modals - These still need to be rewritten or compatible */}
+			{/* If they rely on 'Dialog' prop (shadcn), they might break inside FluentRoot if z-index fights occur */}
+			{/* Ideally we rewrite them now. For step one, we mount them and hope. */}
+			{showAddModal && (
+				<AddProjectModal
+					onClose={() => setShowAddModal(false)}
+					onAdded={handleAddProject}
+				/>
+			)}
+			{selectedProject && (
+				<ProjectDetailModal
+					project={selectedProject}
+					onClose={() => setSelectedProject(null)}
+					onUpdate={fetchProjects}
+				/>
+			)}
 		</div>
 	);
 }

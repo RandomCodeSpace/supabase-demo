@@ -1,5 +1,11 @@
-import { AlertCircle, RefreshCw } from "lucide-react";
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import {
+	Button,
+	Text,
+	tokens,
+	Card,
+} from "@fluentui/react-components";
+import { Alert24Regular, ArrowClockwise24Regular } from "@fluentui/react-icons";
 
 interface Props {
 	children: ReactNode;
@@ -9,6 +15,26 @@ interface State {
 	hasError: boolean;
 	error: Error | null;
 }
+
+// Cannot use hooks in class components, so we define styles outside or use inline.
+// Griffel works outside components too? 'makeStyles' returns a hook.
+// We can make a functional wrapper or just style via inline/style block for this critical error screen.
+// Or just use FluentProvider? It's wrapped outside? No, ErrorBoundary is usually inside main.tsx?
+// In main.tsx: <FluentRoot><GlobalErrorBoundary>...
+// So we have Fluent context.
+// But we can't use 'useStyles' inside class component.
+// We'll use inline styles with tokens for simplicity in this crash handler.
+
+const containerStyle: React.CSSProperties = {
+	minHeight: "100vh",
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
+	justifyContent: "center",
+	padding: "24px",
+	backgroundColor: tokens.colorNeutralBackground2,
+	textAlign: "center"
+};
 
 export class GlobalErrorBoundary extends Component<Props, State> {
 	public state: State = {
@@ -27,30 +53,46 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 	public render() {
 		if (this.state.hasError) {
 			return (
-				<div className="min-h-screen flex flex-col items-center justify-center p-6 bg-zen-bg text-zen-text text-center">
-					<div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-3xl max-w-md w-full border border-red-100 dark:border-red-900/30">
-						<div className="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 dark:text-red-400">
-							<AlertCircle size={32} />
+				<div style={containerStyle}>
+					<Card style={{ padding: '32px', maxWidth: '480px', alignItems: 'center', gap: '16px' }}>
+						<div style={{
+							padding: '16px',
+							borderRadius: '50%',
+							backgroundColor: tokens.colorPaletteRedBackground1,
+							color: tokens.colorPaletteRedForeground1
+						}}>
+							<Alert24Regular style={{ fontSize: 32 }} />
 						</div>
-						<h1 className="text-xl font-bold mb-2">Something went wrong</h1>
-						<p className="text-sm text-zen-text-muted mb-6">
+						<Text size={600} weight="bold">Something went wrong</Text>
+						<Text style={{ color: tokens.colorNeutralForeground3 }}>
 							The application encountered an unexpected error.
-						</p>
+						</Text>
 
 						{this.state.error && (
-							<div className="bg-black/5 dark:bg-black/40 p-3 rounded-xl text-xs font-mono text-left overflow-auto max-h-32 mb-6">
+							<div style={{
+								padding: '12px',
+								backgroundColor: tokens.colorNeutralBackground3,
+								borderRadius: tokens.borderRadiusMedium,
+								fontFamily: 'monospace',
+								fontSize: '12px',
+								textAlign: 'left',
+								overflow: 'auto',
+								maxHeight: '120px',
+								width: '100%'
+							}}>
 								{this.state.error.toString()}
 							</div>
 						)}
 
-						<button
+						<Button
+							appearance="primary"
+							icon={<ArrowClockwise24Regular />}
 							onClick={() => window.location.reload()}
-							className="w-full py-3 bg-zen-text text-zen-bg rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+							size="large"
 						>
-							<RefreshCw size={18} />
 							Reload Application
-						</button>
-					</div>
+						</Button>
+					</Card>
 				</div>
 			);
 		}
