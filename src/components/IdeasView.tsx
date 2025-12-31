@@ -1,14 +1,12 @@
 import { AnimatePresence } from "framer-motion";
-import { Plus, Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useProjectStore } from "../stores/useProjectStore";
 import type { Project } from "../backbone/services/projectService";
 import { useToast } from "../context/ToastContext";
-import { AddProjectModal } from "./ideas/AddProjectModal";
 import { ProjectDetailModal } from "./ideas/ProjectDetailModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { GlassCard } from "./design/GlassCard";
-import { NeonButton } from "./design/NeonButton";
 import { SwipeableItem } from "./design/SwipeableItem";
 
 export function IdeasView() {
@@ -18,7 +16,6 @@ export function IdeasView() {
 		deleteProject
 	} = useProjectStore();
 
-	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 	const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 	const [resetKeys, setResetKeys] = useState<Record<string, number>>({});
@@ -123,27 +120,7 @@ export function IdeasView() {
 				)}
 			</div>
 
-			{/* Floating Action Button */}
-			<div className="fixed bottom-32 right-6 z-40">
-				<NeonButton
-					onClick={() => setShowAddModal(true)}
-					className="!rounded-full !w-16 !h-16 !p-0"
-					variant="secondary"
-					glow
-				>
-					<Plus size={32} />
-				</NeonButton>
-			</div>
 
-			{showAddModal && (
-				<AddProjectModal
-					onClose={() => setShowAddModal(false)}
-					onAdded={() => {
-						success("Idea created");
-						fetchProjects();
-					}}
-				/>
-			)}
 
 			{selectedProject && (
 				<ProjectDetailModal

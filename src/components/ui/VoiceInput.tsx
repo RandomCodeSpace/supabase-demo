@@ -14,6 +14,7 @@ interface VoiceInputProps {
 	enableAIRewrite?: boolean;
 	onFocus?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
 	placeholder?: string;
+	autoFocus?: boolean;
 }
 
 export function VoiceInput({
@@ -24,6 +25,7 @@ export function VoiceInput({
 	rightElement,
 	aiContext,
 	enableAIRewrite = true,
+	autoFocus,
 	...props
 }: VoiceInputProps) {
 	const {
@@ -36,6 +38,16 @@ export function VoiceInput({
 	} = useSpeechRecognition();
 
 	const textBeforeListening = useRef("");
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	useEffect(() => {
+		if (autoFocus && textareaRef.current) {
+			// Slight delay to allow Drawer animation/mount
+			setTimeout(() => {
+				textareaRef.current?.focus();
+			}, 100);
+		}
+	}, [autoFocus]);
 
 	useEffect(() => {
 		if (isListening && transcript) {
@@ -67,14 +79,16 @@ export function VoiceInput({
 	return (
 		<div className={clsx("relative w-full flex flex-col", containerClassName)}>
 			<textarea
+				ref={textareaRef}
 				value={value}
 				onChange={handleOnChange}
 				className={clsx(
-					"w-full resize-none font-sans min-h-[50px] bg-transparent text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none",
+					"w-full resize-none font-sans min-h-[50px] bg-transparent text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none no-scrollbar overflow-x-hidden",
 					className
 				)}
 				placeholder={props.placeholder}
 				onFocus={props.onFocus}
+				style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
 			/>
 
 			{/* Actions - overlaid or adjacent usually? 

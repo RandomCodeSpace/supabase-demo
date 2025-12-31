@@ -1,14 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useHabitStore } from "../stores/useHabitStore";
 import type { Habit } from "../backbone/services/habitService";
 import { useToast } from "../context/ToastContext";
-import { AddHabitModal } from "./ui/AddHabitModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
 import { GlassCard } from "./design/GlassCard";
-import { NeonButton } from "./design/NeonButton";
 import { SwipeableItem } from "./design/SwipeableItem";
 
 export function TodosView() {
@@ -22,7 +20,6 @@ export function TodosView() {
 		deleteHabit
 	} = useHabitStore();
 
-	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 	const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
 	const [resetKeys, setResetKeys] = useState<Record<string, number>>({});
@@ -143,26 +140,7 @@ export function TodosView() {
 				)}
 			</div>
 
-			{/* FAB */}
-			<div className="fixed bottom-32 right-6 z-40">
-				<NeonButton
-					onClick={() => setShowAddModal(true)}
-					className="!rounded-full !w-16 !h-16 !p-0"
-					glow
-				>
-					<Plus size={32} />
-				</NeonButton>
-			</div>
 
-			{showAddModal && (
-				<AddHabitModal
-					onClose={() => setShowAddModal(false)}
-					onAdded={() => {
-						success("Added");
-						fetchData();
-					}}
-				/>
-			)}
 
 			{selectedHabit && (
 				<HabitDetailModal

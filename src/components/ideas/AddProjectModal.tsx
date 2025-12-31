@@ -42,6 +42,7 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 						Project Name
 					</label>
 					<VoiceInput
+						autoFocus
 						value={name}
 						onValueChange={setName}
 						placeholder="e.g. AI Fitness App"

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { supabase } from "./backbone/lib/supabase";
 import { Auth } from "./components/Auth";
 import { IdeasView } from "./components/IdeasView";
@@ -7,7 +8,13 @@ import { Shell } from "./components/design/Shell";
 import { TodosView } from "./components/TodosView";
 import { OrientationGuard } from "./components/ui/OrientationGuard";
 import { UserProfileModal } from "./components/ui/UserProfileModal";
+import { AddHabitModal } from "./components/ui/AddHabitModal";
+import { AddProjectModal } from "./components/ideas/AddProjectModal";
+import { NeonButton } from "./components/design/NeonButton";
 import { useAuthStore } from "./stores/useAuthStore";
+import { useHabitStore } from "./stores/useHabitStore";
+import { useProjectStore } from "./stores/useProjectStore";
+import { useToast } from "./context/ToastContext";
 
 function App() {
 	const { session, setSession } = useAuthStore();
@@ -58,6 +65,18 @@ function App() {
 		return () => subscription.unsubscribe();
 	}, [setSession]);
 
+	const { fetchData } = useHabitStore();
+	const { fetchProjects } = useProjectStore();
+	const { success } = useToast();
+
+	const [showAddHabitModal, setShowAddHabitModal] = useState(false);
+	const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+
+	const handleFabClick = () => {
+		if (activeTab === "todos") setShowAddHabitModal(true);
+		else setShowAddProjectModal(true);
+	};
+
 	if (!session) {
 		return <Auth />;
 	}
@@ -96,6 +115,39 @@ function App() {
 					)}
 				</AnimatePresence>
 			</Shell>
+
+			{/* Global FAB */}
+			<div className="fixed bottom-32 right-6 z-40">
+				<NeonButton
+					onClick={handleFabClick}
+					className="!rounded-full !w-16 !h-16 !p-0"
+					variant={activeTab === "ideas" ? "secondary" : "primary"}
+					glow
+				>
+					<Plus size={32} />
+				</NeonButton>
+			</div>
+
+			{/* Modals */}
+			{showAddHabitModal && (
+				<AddHabitModal
+					onClose={() => setShowAddHabitModal(false)}
+					onAdded={() => {
+						success("Added");
+						fetchData();
+					}}
+				/>
+			)}
+
+			{showAddProjectModal && (
+				<AddProjectModal
+					onClose={() => setShowAddProjectModal(false)}
+					onAdded={() => {
+						success("Idea created");
+						fetchProjects();
+					}}
+				/>
+			)}
 
 			{/* Temporary Profile Modal using old UI until refactor */}
 			{showProfile && (

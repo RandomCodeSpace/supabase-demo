@@ -45,6 +45,7 @@ export function AddHabitModal({ onClose, onAdded }: AddHabitModalProps) {
 				<div className="flex flex-col gap-2">
 					<label className="text-sm font-semibold text-[var(--text-secondary)]">Title</label>
 					<VoiceInput
+						autoFocus
 						value={title}
 						onValueChange={setTitle}
 						placeholder="e.g. Morning Meditation"

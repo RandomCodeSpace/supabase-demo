@@ -177,7 +177,7 @@ export function ProjectDetailModal({
 					value={newFeature}
 					onValueChange={setNewFeature}
 					placeholder="Add a feature..."
-					className="flex-1 bg-[var(--bg-deep)] border-white/10 rounded-xl px-4 py-3 focus:border-[var(--color-primary)] outline-none transition-colors"
+					className="flex-1 bg-[var(--bg-deep)] border-white/10 rounded-xl px-4 py-3 focus:border-[var(--color-primary)] outline-none transition-colors no-scrollbar"
 				/>
 				<NeonButton
 					onClick={handleAddFeature}
