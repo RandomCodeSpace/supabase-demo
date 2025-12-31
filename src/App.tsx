@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useRegisterSW } from "virtual:pwa-register/react";
 import { Plus } from "lucide-react";
 import { supabase } from "./backbone/lib/supabase";
 import { Auth } from "./components/Auth";
@@ -67,7 +68,28 @@ function App() {
 
 	const { fetchData } = useHabitStore();
 	const { fetchProjects } = useProjectStore();
-	const { success } = useToast();
+	const { success, action } = useToast();
+
+	// PWA Update Logic
+	const {
+		needRefresh: [needRefresh],
+		updateServiceWorker,
+	} = useRegisterSW({
+		onRegisterError(error) {
+			console.log('SW registration error', error);
+		},
+	});
+
+	useEffect(() => {
+		if (needRefresh) {
+			action(
+				"New version available",
+				"Reload",
+				() => updateServiceWorker(true),
+				"primary"
+			);
+		}
+	}, [needRefresh, action, updateServiceWorker]);
 
 	const [showAddHabitModal, setShowAddHabitModal] = useState(false);
 	const [showAddProjectModal, setShowAddProjectModal] = useState(false);

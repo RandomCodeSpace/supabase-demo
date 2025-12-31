@@ -25,6 +25,17 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  /* Prevent body scroll, leaving scrolling to inner containers */
+  overscroll-behavior: none;
+  /* Disable pull-to-refresh/bounce globally */
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -32,9 +43,6 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  /* Prevent pull-to-refresh on mobile PWA */
-  overscroll-behavior-y: none;
 }
 
 h1,
