@@ -431,6 +431,31 @@ Simple todo item (less featured than Habit).
 
 ---
 
+### 3.9 AI Assistance
+
+#### 3.9.1 AI Rewrite
+
+| Aspect | Details |
+|--------|---------|
+| **Trigger** | User taps "Sparkle" icon in supported text areas |
+| **Process Flow** | 1. Check `AI_ENABLED` config (default: true)<br>2. Send current text context to `ai-proxy` edge function<br>3. Show loading cursor/icon<br>4. Replace text field content with rewritten version on success<br>5. Show error toast on failure |
+| **Validation Rules** | Text must not be empty; AI features must be enabled |
+| **Outcome** | Text is rewritten to be more professional/concise |
+
+---
+
+### 3.10 Manual Sync Controls
+
+#### 3.10.1 Manual Pull & Push
+
+| Aspect | Details |
+|--------|---------|
+| **Trigger** | User taps Sync (arrows) or Save (cloud-up) icons in UI header |
+| **Process Flow** | **Pull:**<br>1. Trigger `SyncService.pullChanges()`<br>2. Refresh all local stores (Habits, Projects)<br>3. Show success toast "Data updated"<br><br>**Push:**<br>1. Trigger `SyncService.pushImmediately()` (bypasses debounce)<br>2. Show success toast "Changes uploaded" |
+| **Outcome** | Force synchronization with server |
+
+---
+
 ## 4. API & Integration Contract
 
 ### 4.1 Supabase Authentication
@@ -467,6 +492,14 @@ All tables use Row Level Security (RLS). Users can only access their own data.
 - `last_pulled_at`: Timestamp of last server pull
 - `sb-access-token`: Supabase access token (deleted on logout)
 - `sb-refresh-token`: Supabase refresh token (deleted on logout)
+
+---
+
+### 4.4 AI Services (Edge Functions)
+
+| Function | Purpose | Provider/Model |
+|----------|---------|----------------|
+| `ai-proxy` | Rewrite and enhance text inputs | Google Gemini (`gemini-3-flash-preview`) |
 
 ---
 
