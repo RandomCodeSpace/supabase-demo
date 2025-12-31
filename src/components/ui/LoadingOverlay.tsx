@@ -1,30 +1,20 @@
-import { Spinner, makeStyles, tokens } from "@fluentui/react-components";
-
-const useStyles = makeStyles({
-	root: {
-		position: "absolute",
-		inset: 0,
-		zIndex: 50,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: tokens.colorBackgroundOverlay,
-		backdropFilter: "blur(4px)",
-		borderRadius: tokens.borderRadiusLarge
-	}
-});
+import { motion } from "framer-motion";
 
 interface LoadingOverlayProps {
 	message?: string;
 }
 
-export function LoadingOverlay({
-	message = "Loading...",
-}: LoadingOverlayProps) {
-	const styles = useStyles();
+export function LoadingOverlay({ message = "Loading..." }: LoadingOverlayProps) {
 	return (
-		<div className={styles.root}>
-			<Spinner label={message} size="large" />
+		<div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
+			<motion.div
+				animate={{ rotate: 360 }}
+				transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+				className="w-12 h-12 border-2 border-[var(--color-primary)] border-t-transparent rounded-full"
+			/>
+			<p className="mt-4 font-mono text-[var(--color-primary)] animate-pulse">
+				{message}
+			</p>
 		</div>
 	);
 }

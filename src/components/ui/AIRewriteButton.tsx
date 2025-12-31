@@ -1,25 +1,8 @@
-import {
-	Button,
-	makeStyles
-} from "@fluentui/react-components";
-import { SparkleRegular, SparkleFilled, bundleIcon } from "@fluentui/react-icons";
+import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { AIRewriteService } from "../../backbone/services/aiRewriteService";
 import { useToast } from "../../context/ToastContext";
-
-const SparkleIcon = bundleIcon(SparkleFilled, SparkleRegular);
-
-const useStyles = makeStyles({
-	loading: {
-		animationDuration: "2s",
-		animationIterationCount: "infinite",
-		animationName: {
-			from: { transform: "rotate(0deg)" },
-			to: { transform: "rotate(360deg)" },
-		},
-		animationTimingFunction: "linear",
-	}
-});
+import clsx from "clsx";
 
 interface AIRewriteButtonProps {
 	text: string;
@@ -36,7 +19,6 @@ export function AIRewriteButton({
 }: AIRewriteButtonProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const { error } = useToast();
-	const styles = useStyles();
 
 	const handleRewrite = async () => {
 		if (!text.trim() || isLoading) return;
@@ -63,14 +45,22 @@ export function AIRewriteButton({
 	}
 
 	return (
-		<Button
-			appearance="subtle"
-			icon={<SparkleIcon className={isLoading ? styles.loading : undefined} />}
+		<button
+			type="button"
 			onClick={handleRewrite}
 			disabled={!text.trim() || isLoading}
-			className={className}
+			className={clsx(
+				"p-2 rounded-full transition-all",
+				isLoading ? "cursor-wait" : "hover:bg-white/10",
+				"text-[var(--color-secondary)]", // Purple for AI
+				className
+			)}
 			title={isLoading ? "Rewriting..." : "Rewrite with AI"}
-			aria-label="Rewrite text with AI"
-		/>
+		>
+			<Sparkles
+				size={16}
+				className={clsx(isLoading && "animate-spin")}
+			/>
+		</button>
 	);
 }

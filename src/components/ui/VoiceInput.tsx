@@ -1,51 +1,8 @@
-import {
-	makeStyles,
-	tokens,
-	Textarea,
-	Button,
-	shorthands,
-	mergeClasses
-} from "@fluentui/react-components";
-import { MicRegular, MicFilled, bundleIcon } from "@fluentui/react-icons";
+import { Mic, MicOff } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useSpeechRecognition } from "../../backbone/hooks/useSpeechRecognition";
-import { AIRewriteButton } from "./AIRewriteButton";
-
-const MicIcon = bundleIcon(MicFilled, MicRegular);
-
-const useStyles = makeStyles({
-	container: {
-		position: "relative",
-		display: "flex",
-		flexDirection: "column",
-		width: "100%",
-	},
-	textarea: {
-		width: "100%",
-		"& textarea": {
-			minHeight: "80px", // equivalent to likely size
-			maxHeight: "300px",
-			resize: "none",
-			fontFamily: tokens.fontFamilyBase,
-			...shorthands.padding("12px", "12px", "48px", "12px"), // Bottom padding for actions
-		}
-	},
-	actionsContainer: {
-		position: "absolute",
-		right: "8px",
-		bottom: "8px",
-		display: "flex",
-		...shorthands.gap("4px"),
-		zIndex: 10,
-	},
-	micActive: {
-		backgroundColor: tokens.colorPaletteRedBackground3,
-		color: tokens.colorNeutralForegroundOnBrand,
-		"&:hover": {
-			backgroundColor: tokens.colorPaletteRedBackground2,
-		}
-	}
-});
+import { AIRewriteButton } from "./AIRewriteButton"; // Verify this later
+import clsx from "clsx";
 
 interface VoiceInputProps {
 	value: string;
@@ -69,7 +26,6 @@ export function VoiceInput({
 	enableAIRewrite = true,
 	...props
 }: VoiceInputProps) {
-	const styles = useStyles();
 	const {
 		isListening,
 		transcript,
@@ -106,32 +62,45 @@ export function VoiceInput({
 		if (!isListening) {
 			textBeforeListening.current = e.target.value;
 		}
-	}
+	};
 
 	return (
-		<div className={mergeClasses(styles.container, containerClassName)}>
-			<Textarea
+		<div className={clsx("relative w-full flex flex-col", containerClassName)}>
+			<textarea
 				value={value}
 				onChange={handleOnChange}
-				className={mergeClasses(styles.textarea, className)}
+				className={clsx(
+					"w-full resize-none font-sans min-h-[50px] bg-transparent text-[var(--text-primary)] placeholder-[var(--text-tertiary)] outline-none",
+					className
+				)}
 				placeholder={props.placeholder}
 				onFocus={props.onFocus}
-				// Fluent Textarea doesn't pass all props directly to textarea comfortably without slot props, trying direct
-				textarea={{
-					className: "min-h-[100px]" // fallback if styles fail or needed
-				}}
 			/>
 
-			<div className={styles.actionsContainer}>
+			{/* Actions - overlaid or adjacent usually? 
+               In the legacy design, they were absolute bottom-right.
+               We can keep that or make them inline. 
+               Given the usage in ProjectDetailModal, it's wrapped in a flex container row.
+               So maybe we just return the textarea here and let the parent handle layout?
+               
+               Legacy VoiceInput was self-contained with buttons inside.
+               Let's render them absolutely positioned inside the container if it's meant to be a wrapper.
+            */}
+			<div className="absolute right-2 bottom-2 flex gap-1 z-10">
 				{hasSupport && (
-					<Button
-						appearance={isListening ? "primary" : "subtle"}
-						icon={<MicIcon />}
+					<button
+						type="button"
 						onClick={handleToggleListening}
-						className={isListening ? styles.micActive : undefined}
+						className={clsx(
+							"p-2 rounded-full transition-all",
+							isListening
+								? "bg-[var(--color-error)] text-white animate-pulse"
+								: "bg-white/5 text-[var(--text-secondary)] hover:bg-white/10"
+						)}
 						title={isListening ? "Stop listening" : "Start dictation"}
-						aria-label={isListening ? "Stop listening" : "Start dictation"}
-					/>
+					>
+						{isListening ? <MicOff size={16} /> : <Mic size={16} />}
+					</button>
 				)}
 
 				{enableAIRewrite && (

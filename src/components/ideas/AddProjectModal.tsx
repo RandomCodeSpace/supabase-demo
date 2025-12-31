@@ -1,65 +1,8 @@
-import {
-	Dialog,
-	DialogTrigger,
-	DialogSurface,
-	DialogTitle,
-	DialogBody,
-	DialogActions,
-	DialogContent,
-	Button,
-	makeStyles,
-	tokens,
-	shorthands,
-	Label
-} from "@fluentui/react-components";
-import { Dismiss24Regular } from "@fluentui/react-icons";
 import { useState } from "react";
 import { ProjectService } from "../../backbone/services/projectService";
 import { VoiceInput } from "../ui/VoiceInput";
-
-const useStyles = makeStyles({
-	dialogSurface: {
-		// Mobile Bottom Sheet Styles
-		width: "100%",
-		maxWidth: "100%",
-		position: "fixed",
-		bottom: 0,
-		left: 0,
-		right: 0,
-		margin: 0,
-		...shorthands.borderRadius(tokens.borderRadiusXLarge, tokens.borderRadiusXLarge, 0, 0),
-		maxHeight: "90dvh", // PWA safety
-		overflowY: "auto",
-
-		// Desktop Center Logic
-		"@media (min-width: 768px)": {
-			width: "480px", // Standard modal width
-			maxWidth: "480px",
-			position: "relative", // Reset to default centered
-			bottom: "auto",
-			left: "auto",
-			right: "auto",
-			margin: "auto",
-			...shorthands.borderRadius(tokens.borderRadiusLarge),
-		}
-	},
-	header: {
-		display: "flex",
-		justifyContent: "space-between",
-		alignItems: "center",
-		marginBottom: "16px"
-	},
-	form: {
-		display: "flex",
-		flexDirection: "column",
-		...shorthands.gap("16px")
-	},
-	field: {
-		display: "flex",
-		flexDirection: "column",
-		...shorthands.gap("8px")
-	}
-});
+import { Drawer } from "../design/Drawer";
+import { NeonButton } from "../design/NeonButton";
 
 interface AddProjectModalProps {
 	onClose: () => void;
@@ -67,7 +10,6 @@ interface AddProjectModalProps {
 }
 
 export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
-	const styles = useStyles();
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -83,59 +25,53 @@ export function AddProjectModal({ onClose, onAdded }: AddProjectModalProps) {
 			onClose();
 		} catch (err) {
 			console.error(err);
-			// Toast ideally handled by service or context
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<Dialog open={true} onOpenChange={(_, data) => !data.open && onClose()}>
-			<DialogSurface className={styles.dialogSurface}>
-				<DialogBody>
-					<div className={styles.header}>
-						<DialogTitle>New Idea</DialogTitle>
-						<DialogActions>
-							<DialogTrigger disableButtonEnhancement>
-								<Button appearance="subtle" icon={<Dismiss24Regular />} aria-label="Close" onClick={onClose} />
-							</DialogTrigger>
-						</DialogActions>
-					</div>
+		<Drawer
+			isOpen={true}
+			onClose={onClose}
+			title="New Idea"
+		>
+			<form onSubmit={handleSubmit} className="flex flex-col gap-6 pt-4">
+				<div className="flex flex-col gap-2">
+					<label htmlFor="proj-name" className="text-sm font-semibold text-[var(--text-secondary)]">
+						Project Name
+					</label>
+					<VoiceInput
+						value={name}
+						onValueChange={setName}
+						placeholder="e.g. AI Fitness App"
+						className="p-4 rounded-xl bg-white/5 border border-white/10 focus:border-[var(--color-primary)] transition-colors min-h-[3rem]"
+					/>
+				</div>
 
-					<DialogContent className={styles.form}>
-						<form onSubmit={handleSubmit} className={styles.form}>
-							<div className={styles.field}>
-								<Label htmlFor="proj-name" weight="semibold">Project Name</Label>
-								<VoiceInput
-									value={name}
-									onValueChange={setName}
-									placeholder="e.g. AI Fitness App"
-									className="min-h-[3rem]" // fallback helpers
-								/>
-							</div>
+				<div className="flex flex-col gap-2">
+					<label htmlFor="proj-desc" className="text-sm font-semibold text-[var(--text-secondary)]">
+						Description / Goal
+					</label>
+					<VoiceInput
+						value={description}
+						onValueChange={setDescription}
+						placeholder="What problem does it solve?"
+						className="p-4 rounded-xl bg-white/5 border border-white/10 focus:border-[var(--color-primary)] transition-colors min-h-[6rem]"
+					/>
+				</div>
 
-							<div className={styles.field}>
-								<Label htmlFor="proj-desc" weight="semibold">Description / Goal</Label>
-								<VoiceInput
-									value={description}
-									onValueChange={setDescription}
-									placeholder="What problem does it solve?"
-									className="min-h-[6rem]"
-								/>
-							</div>
-
-							<Button
-								appearance="primary"
-								type="submit"
-								disabled={!name || loading}
-								size="large"
-							>
-								{loading ? "Creating..." : "Start Brainstorming"}
-							</Button>
-						</form>
-					</DialogContent>
-				</DialogBody>
-			</DialogSurface>
-		</Dialog>
+				<div className="pt-4">
+					<NeonButton
+						type="submit"
+						disabled={!name || loading}
+						className="w-full !p-4 !text-lg !rounded-xl"
+						glow
+					>
+						{loading ? "Creating..." : "Start Brainstorming"}
+					</NeonButton>
+				</div>
+			</form>
+		</Drawer>
 	);
 }

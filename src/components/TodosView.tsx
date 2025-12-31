@@ -1,17 +1,5 @@
-import {
-	makeStyles,
-	tokens,
-	Text,
-	Button,
-	shorthands,
-	Checkbox
-} from "@fluentui/react-components";
-import {
-	Add24Regular,
-	Add24Filled,
-	Delete24Regular,
-	bundleIcon
-} from "@fluentui/react-icons";
+import { AnimatePresence, motion } from "framer-motion";
+import { Plus, CheckCircle2, Circle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useHabitStore } from "../stores/useHabitStore";
 import type { Habit } from "../backbone/services/habitService";
@@ -19,196 +7,160 @@ import { useToast } from "../context/ToastContext";
 import { AddHabitModal } from "./ui/AddHabitModal";
 import { HabitDetailModal } from "./ui/HabitDetailModal";
 import { ConfirmationModal } from "./ui/ConfirmationModal";
-import { LoadingOverlay } from "./ui/LoadingOverlay";
-import { Logo } from "./ui/Logo";
-import { ProgressRing } from "./ui/ProgressRing";
-
-const AddIcon = bundleIcon(Add24Filled, Add24Regular);
-
-const useStyles = makeStyles({
-	root: {
-		position: "relative",
-		height: "100%",
-		width: "100%",
-		display: "flex",
-		flexDirection: "column",
-		backgroundColor: tokens.colorNeutralBackground2,
-		...shorthands.padding("16px"),
-		boxSizing: "border-box"
-	},
-	header: {
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "center",
-		marginBottom: "24px",
-		flexShrink: 0,
-		...shorthands.gap("8px")
-	},
-	list: {
-		display: "flex",
-		flexDirection: "column",
-		...shorthands.gap("12px"),
-		overflowY: "auto",
-		paddingBottom: "100px",
-		flexGrow: 1
-	},
-	habitCard: {
-		display: "flex",
-		alignItems: "center",
-		...shorthands.padding("12px"),
-		backgroundColor: tokens.colorNeutralBackground1,
-		...shorthands.borderRadius(tokens.borderRadiusMedium),
-		boxShadow: tokens.shadow2,
-		cursor: "pointer",
-		...shorthands.gap("12px")
-	},
-	colorStrip: {
-		width: "6px",
-		height: "40px",
-		borderRadius: "3px"
-	},
-	content: {
-		flexGrow: 1,
-		display: "flex",
-		flexDirection: "column"
-	},
-	fabContainer: {
-		position: "absolute",
-		bottom: "24px",
-		right: "24px",
-		zIndex: 10,
-		"@media (min-width: 768px)": {
-			bottom: "32px",
-			right: "32px"
-		}
-	},
-	fab: {
-		height: "56px",
-		width: "56px",
-		borderRadius: "28px",
-		boxShadow: tokens.shadow16
-	}
-});
+import { GlassCard } from "./design/GlassCard";
+import { NeonButton } from "./design/NeonButton";
+import { SwipeableItem } from "./design/SwipeableItem";
 
 export function TodosView() {
-	const styles = useStyles();
 	const {
 		habits,
 		logs,
 		todayProgress,
 		isLoading: loading,
 		fetchData,
-		addHabit: addHabitToStore,
 		toggleHabit,
-		deleteHabit: deleteHabitFromStore,
+		deleteHabit
 	} = useHabitStore();
 
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
-	const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
+	const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
+	const [resetKeys, setResetKeys] = useState<Record<string, number>>({});
+
 	const { success, error: toastError } = useToast();
 
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
 
-	const handleComplete = async (e: React.MouseEvent | React.ChangeEvent, habitId: string) => {
+	const handleToggle = async (e: React.MouseEvent, habitId: string) => {
 		e.stopPropagation();
 		try {
 			await toggleHabit(habitId);
-			success("Status updated");
+			if (navigator.vibrate) navigator.vibrate(10);
 		} catch (err) {
 			console.error(err);
 			toastError("Failed to update status");
 		}
 	};
 
-	const handleAddHabit = (newHabit: Habit) => {
-		addHabitToStore(newHabit);
-		success("New todo started");
+	const handleSwipeDelete = (habit: Habit) => {
+		setHabitToDelete(habit);
 	};
-
-	const handleDelete = (id: string) => {
-		setHabitToDelete(id);
-	}
 
 	const confirmDelete = async () => {
 		if (!habitToDelete) return;
 		try {
-			await deleteHabitFromStore(habitToDelete);
-			success("Todo deleted");
-		} catch (e) {
-			toastError("Failed to delete");
-		} finally {
+			await deleteHabit(habitToDelete.id);
+			success("Deleted");
 			setHabitToDelete(null);
+		} catch (err) {
+			toastError("Failed to delete");
 		}
-	}
+	};
+
+	const cancelDelete = () => {
+		if (habitToDelete) {
+			// Force re-render of the item to reset swipe position
+			setResetKeys(prev => ({
+				...prev,
+				[habitToDelete.id]: (prev[habitToDelete.id] || 0) + 1
+			}));
+		}
+		setHabitToDelete(null);
+	};
 
 	return (
-		<div className={styles.root}>
-			{loading && <LoadingOverlay message="Loading todos..." />}
-
-			<header className={styles.header}>
-				<ProgressRing percentage={todayProgress} size={160} color={tokens.colorPaletteGreenBackground3} />
-				<div style={{ textAlign: 'center' }}>
-					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
-						<Logo size={24} animate={false} />
-						<Text size={500} weight="bold">Todos</Text>
+		<div className="flex flex-col h-full min-h-screen relative p-4 pb-24">
+			{/* Reachability Header */}
+			<div className="mt-12 mb-8 px-2">
+				<h1 className="text-4xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">
+					Today's<br />Focus
+				</h1>
+				<div className="flex items-center gap-4 mt-4">
+					<div className="h-2 flex-1 bg-white/10 rounded-full overflow-hidden">
+						<motion.div
+							className="h-full bg-[var(--color-primary)] glow-primary"
+							initial={{ width: 0 }}
+							animate={{ width: `${todayProgress}%` }}
+							transition={{ duration: 1, ease: "easeOut" }}
+						/>
 					</div>
-					<Text size={300} style={{ color: tokens.colorNeutralForeground3 }}>
-						{Math.round(todayProgress)}% completed
-					</Text>
+					<span className="font-mono text-[var(--color-primary)]">{Math.round(todayProgress)}%</span>
 				</div>
-			</header>
+			</div>
 
-			<div className={styles.list}>
-				{habits.map(habit => {
-					const isCompleted = logs.some(l => l.habit_id === habit.id && l.status === "completed");
-					return (
-						<div key={habit.id} className={styles.habitCard} onClick={() => setSelectedHabit(habit)}>
-							<div className={styles.colorStrip} style={{ backgroundColor: habit.color }} />
-							<div className={styles.content}>
-								<Text weight="semibold" style={{ textDecoration: isCompleted ? 'line-through' : 'none', opacity: isCompleted ? 0.6 : 1 }}>
-									{habit.title}
-								</Text>
-								{habit.description && <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{habit.description}</Text>}
-							</div>
-							<Checkbox
-								checked={isCompleted}
-								onChange={(e) => handleComplete(e, habit.id)}
-								onClick={(e) => e.stopPropagation()}
-							/>
-							<Button
-								appearance="transparent"
-								icon={<Delete24Regular />}
-								onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }}
-								aria-label="Delete"
-							/>
-						</div>
-					)
-				})}
+			{/* List */}
+			<div className="flex flex-col gap-4">
+				<AnimatePresence mode="popLayout">
+					{habits.map((habit) => {
+						const isCompleted = logs.some(l => l.habit_id === habit.id && l.status === "completed");
+						const currentKey = `${habit.id}-${resetKeys[habit.id] || 0}`;
+
+						return (
+							<SwipeableItem
+								key={currentKey}
+								onDelete={() => handleSwipeDelete(habit)}
+								onComplete={() => handleToggle({ stopPropagation: () => { } } as React.MouseEvent, habit.id)}
+								confirmMessage="Delete this habit?"
+							>
+								<GlassCard
+									onClick={() => setSelectedHabit(habit)}
+									className="flex items-center gap-4 !p-5 active:scale-[0.98] transition-transform !bg-transparent !border-0 !shadow-none"
+								>
+									<button
+										onClick={(e) => handleToggle(e, habit.id)}
+										className="text-[var(--color-success)] focus:outline-none"
+									>
+										{isCompleted ? (
+											<CheckCircle2 size={28} className="drop-shadow-[0_0_8px_rgba(10,255,96,0.5)]" />
+										) : (
+											<Circle size={28} className="opacity-50" />
+										)}
+									</button>
+
+									<div className="flex-1 min-w-0">
+										<h3 className={`text-lg font-medium truncate transition-all ${isCompleted ? 'line-through opacity-40' : ''}`}>
+											{habit.title}
+										</h3>
+										{habit.description && (
+											<p className="text-sm text-[var(--text-secondary)] truncate">
+												{habit.description}
+											</p>
+										)}
+									</div>
+								</GlassCard>
+							</SwipeableItem>
+						);
+					})}
+				</AnimatePresence>
+
 				{habits.length === 0 && !loading && (
-					<div style={{ textAlign: 'center', padding: '40px' }}>
-						<Text style={{ color: tokens.colorNeutralForeground3 }}>No todos yet. Tap + to start.</Text>
+					<div className="text-center text-[var(--text-tertiary)] mt-12">
+						<p>No active habits.</p>
+						<p className="text-sm mt-2">Tap + to start a streak.</p>
 					</div>
 				)}
 			</div>
 
-			<div className={styles.fabContainer}>
-				<Button
-					appearance="primary"
-					icon={<AddIcon />}
-					className={styles.fab}
+			{/* FAB */}
+			<div className="fixed bottom-32 right-6 z-40">
+				<NeonButton
 					onClick={() => setShowAddModal(true)}
-					size="large"
-					aria-label="Add new todo"
-				/>
+					className="!rounded-full !w-16 !h-16 !p-0"
+					glow
+				>
+					<Plus size={32} />
+				</NeonButton>
 			</div>
 
 			{showAddModal && (
 				<AddHabitModal
 					onClose={() => setShowAddModal(false)}
-					onAdded={handleAddHabit}
+					onAdded={() => {
+						success("Added");
+						fetchData();
+					}}
 				/>
 			)}
 
@@ -219,14 +171,15 @@ export function TodosView() {
 				/>
 			)}
 
-			<ConfirmationModal
-				isOpen={!!habitToDelete}
-				onClose={() => setHabitToDelete(null)}
-				onConfirm={confirmDelete}
-				title="Delete Todo?"
-				message="This action cannot be undone."
-			/>
-
+			{habitToDelete && (
+				<ConfirmationModal
+					isOpen={!!habitToDelete}
+					onClose={cancelDelete}
+					onConfirm={confirmDelete}
+					title="Delete Habit?"
+					message={`Are you sure you want to delete "${habitToDelete.title}"? This cannot be undone.`}
+				/>
+			)}
 		</div>
 	);
 }
