@@ -116,63 +116,66 @@ export function ProjectDetailModal({
 			isOpen={true}
 			onClose={onClose}
 			title={project.name}
+			noScroll
 		>
-			{/* Sub-header info */}
-			<div className="mb-6 -mt-2 text-[var(--text-secondary)] flex items-center justify-between">
-				<span>{features.length} features planned</span>
-				<button
-					onClick={handleExport}
-					className="p-2 bg-white/5 rounded-full hover:bg-white/10 text-white transition-colors"
-				>
-					<Copy size={16} />
-				</button>
-			</div>
+			<div className="flex-1 overflow-y-auto px-6 pt-4 pb-0 no-scrollbar">
+				{/* Sub-header info */}
+				<div className="mb-6 text-[var(--text-secondary)] flex items-center justify-between">
+					<span>{features.length} features planned</span>
+					<button
+						onClick={handleExport}
+						className="p-2 bg-white/5 rounded-full hover:bg-white/10 text-white transition-colors"
+					>
+						<Copy size={16} />
+					</button>
+				</div>
 
-			{/* List */}
-			<div className="flex flex-col gap-3 min-h-[200px] mb-20">
-				{loadingData ? (
-					<div className="flex justify-center py-10">
-						<div className="animate-spin w-8 h-8 border-2 border-[var(--color-primary)] border-t-transparent rounded-full" />
-					</div>
-				) : (
-					<>
-						{features.map((feature, i) => {
-							const currentKey = `${feature.id}-${resetKeys[feature.id] || 0}`;
-							return (
-								<SwipeableItem
-									key={currentKey}
-									onDelete={() => handleSwipeDelete(feature)}
-									confirmMessage="Delete feature?"
-								>
-									<div
-										className="group relative bg-[var(--bg-deep)] border border-white/5 rounded-xl p-4 flex gap-3 animated-fade-in"
+				{/* List */}
+				<div className="flex flex-col gap-3 min-h-[100px] mb-6">
+					{loadingData ? (
+						<div className="flex justify-center py-10">
+							<div className="animate-spin w-8 h-8 border-2 border-[var(--color-primary)] border-t-transparent rounded-full" />
+						</div>
+					) : (
+						<>
+							{features.map((feature, i) => {
+								const currentKey = `${feature.id}-${resetKeys[feature.id] || 0}`;
+								return (
+									<SwipeableItem
+										key={currentKey}
+										onDelete={() => handleSwipeDelete(feature)}
+										confirmMessage="Delete feature?"
 									>
-										<span className="font-mono text-[var(--color-primary)] font-bold pt-1">{i + 1}.</span>
-										<div className="flex-1">
-											<h4 className="font-medium text-[var(--text-primary)] leading-tight">{feature.title}</h4>
-											{feature.description && (
-												<p className="text-sm text-[var(--text-secondary)] mt-1">{feature.description}</p>
-											)}
+										<div
+											className="group relative bg-[var(--bg-deep)] border border-white/5 rounded-xl p-4 flex gap-3 animated-fade-in"
+										>
+											<span className="font-mono text-[var(--color-primary)] font-bold pt-1">{i + 1}.</span>
+											<div className="flex-1">
+												<h4 className="font-medium text-[var(--text-primary)] leading-tight">{feature.title}</h4>
+												{feature.description && (
+													<p className="text-sm text-[var(--text-secondary)] mt-1">{feature.description}</p>
+												)}
+											</div>
+											{/* No Trash Icon */}
 										</div>
-										{/* No Trash Icon */}
-									</div>
-								</SwipeableItem>
-							);
-						})}
+									</SwipeableItem>
+								);
+							})}
 
-						{features.length === 0 && (
-							<div className="text-center py-10 text-[var(--text-tertiary)] bg-white/5 rounded-xl border border-dashed border-white/10">
-								<Lightbulb className="mx-auto mb-2 opacity-50" />
-								<p>Capture your first feature idea below.</p>
-							</div>
-						)}
-					</>
-				)}
-				<div ref={listEndRef} />
+							{features.length === 0 && (
+								<div className="text-center py-10 text-[var(--text-tertiary)] bg-white/5 rounded-xl border border-dashed border-white/10">
+									<Lightbulb className="mx-auto mb-2 opacity-50" />
+									<p>Capture your first feature idea below.</p>
+								</div>
+							)}
+						</>
+					)}
+					<div ref={listEndRef} />
+				</div>
 			</div>
 
-			{/* Input Area */}
-			<div className="sticky bottom-0 bg-[var(--bg-surface)] pt-4 pb-2 border-t border-white/10 flex items-end gap-2">
+			{/* Input Area - Fixed at Bottom */}
+			<div className="flex-none bg-[var(--bg-surface)] p-4 border-t border-white/10 flex items-end gap-2 z-10 pb-6">
 				<VoiceInput
 					value={newFeature}
 					onValueChange={setNewFeature}

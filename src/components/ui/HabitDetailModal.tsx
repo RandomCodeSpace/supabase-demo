@@ -95,52 +95,55 @@ export function HabitDetailModal({ habit, onClose }: HabitDetailModalProps) {
 			isOpen={true}
 			onClose={onClose}
 			title={habit.title}
+			noScroll
 		>
-			{/* Sub-header info */}
-			<div className="mb-6 -mt-2 text-[var(--text-secondary)]">
-				Todo Notes & Log
-			</div>
+			<div className="flex-1 overflow-y-auto px-6 pt-4 pb-0 no-scrollbar">
+				{/* Sub-header info */}
+				<div className="mb-6 text-[var(--text-secondary)]">
+					Todo Notes & Log
+				</div>
 
-			<div className="flex flex-col gap-3 min-h-[200px] mb-20">
-				{loadingData ? (
-					<div className="flex justify-center py-10">
-						<div className="animate-spin w-8 h-8 border-2 border-[var(--color-primary)] border-t-transparent rounded-full" />
-					</div>
-				) : (
-					<>
-						{notes.map((note) => {
-							const currentKey = `${note.id}-${resetKeys[note.id] || 0}`;
-							return (
-								<SwipeableItem
-									key={currentKey}
-									onDelete={() => handleSwipeDelete(note)}
-									confirmMessage="Delete note?"
-								>
-									<div className="group relative bg-[var(--bg-deep)] border border-white/5 rounded-xl p-4 flex gap-3">
-										<div className="flex-1">
-											<p className="text-[var(--text-primary)] whitespace-pre-wrap">{note.content}</p>
-											<p className="text-xs text-[var(--text-tertiary)] mt-2">
-												{new Date(note.created_at).toLocaleDateString()}
-											</p>
+				<div className="flex flex-col gap-3 min-h-[100px] mb-6">
+					{loadingData ? (
+						<div className="flex justify-center py-10">
+							<div className="animate-spin w-8 h-8 border-2 border-[var(--color-primary)] border-t-transparent rounded-full" />
+						</div>
+					) : (
+						<>
+							{notes.map((note) => {
+								const currentKey = `${note.id}-${resetKeys[note.id] || 0}`;
+								return (
+									<SwipeableItem
+										key={currentKey}
+										onDelete={() => handleSwipeDelete(note)}
+										confirmMessage="Delete note?"
+									>
+										<div className="group relative bg-[var(--bg-deep)] border border-white/5 rounded-xl p-4 flex gap-3">
+											<div className="flex-1">
+												<p className="text-[var(--text-primary)] whitespace-pre-wrap">{note.content}</p>
+												<p className="text-xs text-[var(--text-tertiary)] mt-2">
+													{new Date(note.created_at).toLocaleDateString()}
+												</p>
+											</div>
+											{/* No Trash Icon */}
 										</div>
-										{/* No Trash Icon */}
-									</div>
-								</SwipeableItem>
-							);
-						})}
+									</SwipeableItem>
+								);
+							})}
 
-						{notes.length === 0 && (
-							<div className="text-center py-10 text-[var(--text-tertiary)] bg-white/5 rounded-xl border border-dashed border-white/10">
-								<Lightbulb className="mx-auto mb-2 opacity-50" />
-								<p>No notes yet.</p>
-							</div>
-						)}
-					</>
-				)}
-				<div ref={listEndRef} />
+							{notes.length === 0 && (
+								<div className="text-center py-10 text-[var(--text-tertiary)] bg-white/5 rounded-xl border border-dashed border-white/10">
+									<Lightbulb className="mx-auto mb-2 opacity-50" />
+									<p>No notes yet.</p>
+								</div>
+							)}
+						</>
+					)}
+					<div ref={listEndRef} />
+				</div>
 			</div>
 
-			<div className="sticky bottom-0 bg-[var(--bg-surface)] pt-4 pb-2 border-t border-white/10 flex items-end gap-2">
+			<div className="flex-none bg-[var(--bg-surface)] p-4 border-t border-white/10 flex items-end gap-2 z-10 pb-6">
 				<VoiceInput
 					value={newNote}
 					onValueChange={setNewNote}
